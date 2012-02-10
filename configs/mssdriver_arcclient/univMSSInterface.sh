@@ -1,5 +1,3 @@
-
-
 #!/bin/sh
 
 ## Copyright (c) 2009 Data Intensive Cyberinfrastructure Foundation. All rights reserved.
@@ -18,7 +16,7 @@ syncToArch () {
  # <your command or script to copy from cache to MSS> $1 $2 
 	# e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
 #	echo $1,$2 >/opt/irods/debug.txt;
-	arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2 &>/opt/irods/debug2.txt
+	arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2
         return
 }
 
