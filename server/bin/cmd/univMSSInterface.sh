@@ -60,13 +60,14 @@ rm () {
 mv () {
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
-       return
+       return -1
 }
 
 # function to do a stat on a file $1 stored in the MSS
 stat () {
 	# <your command to retrieve stats on the file> $1
-	# e.g: output=`/usr/local/bin/rfstat rfioServerFoo:$1`
+        output=`arcls -l srm://srm.swegrid.se/ops/uppnex_test$1 | grep $1`
+#	echo $output
 	error=$?
 	if [ $error != 0 ] # if file does not exist or information not available
 	then
@@ -80,7 +81,19 @@ stat () {
 	#                         device id ("devid"), file size ("size"), last access time ("atime"),
 	#                         last modification time ("mtime"), last change time ("ctime"),
 	#                         block size in bytes ("blksize"), number of blocks ("blkcnt")
-	# e.g: device=`echo $output | awk '{print $3}'`	
+	device=0
+	inode=0
+	mode=0
+	nlink=0
+	uid=0
+	gid=0
+	devid=0
+	blksize=0
+	blkcnt=0
+	atime=0
+	mtime=0
+	ctime=`echo $output | awk '{print $4"-"$5}' |sed 's/:/./g'`	
+	size=`echo $output | awk '{print $3}'`	
 	# Note 1: if some of these parameters are not relevant, set them to 0.
 	# Note 2: the time should have this format: YYYY-MM-dd-hh.mm.ss with: 
 	#                                           YYYY = 1900 to 2xxxx, MM = 1 to 12, dd = 1 to 31,

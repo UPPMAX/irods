@@ -4,18 +4,6 @@
 #
 #Test Rules
 printHello { print_hello; }
-HelloWorld {
-     writeLine("stdout", "Hello, world!");
- }
-
-Haggan {
-     writeLine("serverLog", "Hello, world!");
- }
- 
-
-haggan {
-     writeLine("stdout", "Hello, world!");
- }
 
 # 
 #
@@ -98,6 +86,23 @@ acGetUserByDN(*arg,*OUT) { }
 # strict or not for all users:
 acAclPolicy { }
 #acAclPolicy {msiAclPolicy("STRICT"); }
+# When choosing a "STRICT" ACL policy you should consider setting the 
+# following permissions if you are using the PHP web browser:
+# ichmod -M read public /ZONE_NAME
+# ichmod -M read public /ZONE_NAME/home 
+#
+# --------------------------------------------------------------------------
+# This is a policy point for ticket-based access (added in iRODS 3.1),
+# where the administrator can allow ticket use by all users, no users,
+# only certain users, or not certain users.  To disallow for all
+# users, comment out the defined acTicketPolicy.  Also, as an example
+# example, to disallow for user anonymous (passwordless logins),
+# comment out the default acTicketPolicy rule and uncomment out the
+# second one.  The default policy is to allow all users.  The rule is
+# executed when the server receives a ticket for use for access and
+# if the rule fails (none found to apply), the ticket is not used.
+acTicketPolicy {}
+#acTicketPolicy {ON($userNameClient != "anonymous") { } }
 #
 # --------------------------------------------------------------------------
 # The following are rules for data object operation
@@ -135,11 +140,18 @@ acAclPolicy { }
 #        msiSetRescSortScheme(random); msiSetRescSortScheme(byRescClass)
 #        will select randomly a cache class resource and put it on the
 #        top of the list.
+#
+# 1a) acSetRescSchemeForRepl - This is the preprossing rule for replicating a
+# data object. This rule is similar to acSetRescSchemeForCreate except it
+# applies to replication. All the micro-services for acSetRescSchemeForCreate
+# also apply to acSetRescSchemeForRepl
+# 
 # acSetRescSchemeForCreate {msiSetNoDirectRescInp("xyz%demoResc8%abc"); msiSetDefaultResc("demoResc8","null"); msiSetRescSortScheme("default"); }
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); msiSetRescSortScheme("random"); msiSetRescSortScheme("byRescClass"); }
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc7%demoResc8","preferred"); }
 # acSetRescSchemeForCreate {ON($objPath like "/tempZone/home/rods/protected/*") {msiOprDisallowed;} }
 acSetRescSchemeForCreate {msiSetDefaultResc("sweStore","forced"); }
+acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }
 # acSetRescSchemeForCreate {msiGetSessionVarValue("all","all"); msiSetDefaultResc("demoResc","null"); }
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","forced"); msiSetRescSortScheme("random"); msiSetRescSortScheme("byRescClass"); }
 #
@@ -190,6 +202,7 @@ acSetMultiReplPerResc { }
 # 7) acPostProcForCreate - Rule for post processing of data object create.
 # 8) acPostProcForOpen - Rule for post processing of data object open.
 # 8a) acPostProcForPhymv - Rule for post processing of data object phymv.
+# 8b) acPostProcForRepl - Rule for post processing of data object repl.
 # of a physical file path (e.g. - ireg command).
 # 
 # Currently, three post processing functions can be used individually or
@@ -232,6 +245,7 @@ acPostProcForCreate { }
 # acPostProcForOpen {writeLine("serverLog",$objPath); }
 acPostProcForOpen { }
 acPostProcForPhymv { }
+acPostProcForRepl { }
 # 9) acSetNumThreads - Rule to set the number of threads for a data transfer
 # This rule supports condition based on $rescName so that different
 # policies can be set for different resources.
@@ -274,17 +288,34 @@ acDataDeletePolicy { }
 # for this rule.
 acPostProcForDelete { }
 #
-# 12) acNoChkFilePathPerm - This rule set the policy for checking the
-# file path permission when registering physical file path using commands
-# such as ireg. This rule also set the policy for checking the file path
-# when unregistering a data object without deleting the physical file.
+# 12) acSetChkFilePathPerm - This rule replaces acNoChkFilePathPerm. 
+# For now, the only safe setting is the default,
+# msiSetChkFilePathPerm("disallowPathReg"), which prevents non-admin
+# users from using imcoll and ireg.  In the next release (after 3.1)
+# we expect to be able to offer the other settings described below.
+# You can experiment with the other settings, but we do not 
+# recommend them for production at this time.  The rule sets 
+# the policy for checking the file path permission when registering physical 
+# file path using commands such as ireg and imcoll. This rule also sets the 
+# policy for checking the file path when unregistering a data object without 
+# deleting the physical file.
 # Normally, a normal user cannot unregister a data object if the physical
-# file is located in a resource vault. The msiNoChkFilePathPerm allows 
-# this check to be bypassed. Only one function can be called:
-#    msiNoChkFilePathPerm() - Do not check file path permission when registering
-#    a file. WARNING - This function can create a security problem if used.
-acNoChkFilePathPerm { }
-#acNoChkFilePathPerm {msiNoChkFilePathPerm(); }
+# file is located in a resource vault. Setting the chkType input of
+# msiSetChkFilePathPerm to "noChkPathPerm" allows this check to be bypassed. 
+# Only one function can be called:
+#    msiSetChkFilePathPerm(chkType) - Valid values for chkType are:
+#       "disallowPathReg" - Disallow of registration of iRODS path using
+#         ireg and imcoll by a non-privileged user. 
+#       "noChkPathPerm" - Do not check file path permission when registering
+#         a file. WARNING - This setting can create a security problem if used.
+#      "doChkPathPerm" - Check UNIX ownership of physical files before
+#         registering. Registration of path inside iRODS resource vault
+#         path is not allowed.
+#     "chkNonVaultPathPerm" - Check UNIX ownership of physical files before
+#         registering. Registration of path inside iRODS resource vault
+#         path is allowed if the vault path belong to the user. 
+# acSetChkFilePathPerm {msiSetChkFilePathPerm("doChkPathPerm"); }
+acSetChkFilePathPerm {msiSetChkFilePathPerm("disallowPathReg"); }
 #
 # 13) acTrashPolicy - This rule set the policy for whether the trash can
 # should be used. The default policy is the trash can will be used. Only
