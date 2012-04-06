@@ -1,4 +1,4 @@
-mytestrule{ 
+upppnexReplandTrim{ 
    *ContInxOld = 1; 
    *Count = 0; 
    #Get current Time
@@ -36,6 +36,8 @@ mytestrule{
 		msiGetMoreRows(*GenQInp,*GenQOut,*ContInxNew);
 		}	
 	}
+writeLine("serverLog","*Count files were archived");
+
 }
 INPUT *Coll="%home%",*Cache="sweStoreCache",*Archive="sweStore" 
 OUTPUT ruleExecOut 
