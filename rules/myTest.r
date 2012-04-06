@@ -19,10 +19,15 @@ mytestrule{
 		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
 		if (*Tim - *Ctim > 86400) { 
 		        *Path="*Col" ++ "/*File";
-			writeLine("stdout","*Path");
+			#writeLine("stdout","*Path");
 			#Replicate a file, and replicate as admin, the admin user can replicate other user files
 			msiDataObjRepl(*Path,"rescName=*Cache++++destRescName=*Archive++++irodsAdmin=1",*Status);
-			writeLine("stdout","*Status");
+#			writeLine("stdout","*Status");
+			#If status is good, and replica exist trim file from Cache, as admin user.
+			if (*Status == 0) { 
+		        	*Count = *Count + 1; 
+             			msiDataObjTrim(*Path,*Cache,"null","1","1",*Status1);
+				}
 			}
 		}
  	*ContInxOld = *ContInxNew; 
