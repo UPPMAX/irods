@@ -8,17 +8,23 @@ mytestrule{
    msiMakeGenQuery("DATA_NAME,COLL_NAME,DATA_CREATE_TIME,RESC_NAME","RESC_NAME like '*Cache'",*GenQInp);
    #Excute query. 
    msiExecGenQuery(*GenQInp,*GenQOut);
-   #Get Continuation index, index is non-zero when additional rows are available
-   msiGetContInxFromGenQueryOut(*GenQOut,*ContInxNew);
-foreach (*GenQOut) {
-	msiGetValByKey(*GenQOut,"DATA_CREATE_TIME",*Ctime);
-	*Ctim = int(*Ctime);
-	msiGetValByKey(*GenQOut,"DATA_NAME",*File);
-	msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
-	writeLine("stdout","*Col *File *Ctim");
-#	writeLine("stdout",*Col);
-#	writeLine("stdout",*Ctim);
+   #Get Continuation index, index is non-zero when additional rows are available 
+   msiGetContInxFromGenQueryOut(*GenQOut,*ContInxNew);	
+   #Loop over every chunk of 256 rows of file
+   while (*ContInxOld > 0) { 
+	foreach (*GenQOut) {
+		msiGetValByKey(*GenQOut,"DATA_CREATE_TIME",*Ctime);
+		*Ctim = int(*Ctime);
+		msiGetValByKey(*GenQOut,"DATA_NAME",*File);
+		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
+		writeLine("stdout","*Col *File *Ctim");
+		}
+ 	*ContInxOld = *ContInxNew; 
+	if(*ContInxOld > 0) {
+		#Get more rows and start over the foreach loop
+		msiGetMoreRows(*GenQInp,*GenQOut,*ContInxNew);
+		}	
 	}
-	}
+}
 INPUT *Coll="%home%",*Cache="sweStoreCache",*Archive="sweStore" 
 OUTPUT ruleExecOut 
