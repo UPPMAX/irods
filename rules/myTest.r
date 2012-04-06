@@ -17,7 +17,10 @@ mytestrule{
 		*Ctim = int(*Ctime);
 		msiGetValByKey(*GenQOut,"DATA_NAME",*File);
 		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
-		writeLine("stdout","*Col *File *Ctim");
+		if (*Tim - *Ctim > 86400) { 
+		        *Path="*Col" ++ "/*File";
+			writeLine("stdout","*Path");
+			}
 		}
  	*ContInxOld = *ContInxNew; 
 	if(*ContInxOld > 0) {
