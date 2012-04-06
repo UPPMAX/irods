@@ -1,9 +1,5 @@
-upppnexReplandTrim{ 
-   writeLine("serverLog","Running UPPNEX Rule Replicate and Triim from local disk Cache  
-'
-
- 
- ;
+upppnexReplAndTrim{ 
+writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    *ContInxOld = 1; 
    *Count = 0; 
    #Get current Time
