@@ -21,7 +21,7 @@ mytestrule{
 		        *Path="*Col" ++ "/*File";
 			writeLine("stdout","*Path");
 			#Replicate a file, and replicate as admin, the admin user can replicate other user files
-			msiDataObjRepl(*Path,"rescName=*Cache++++destRescName=*Archive++++irodsAdmin",*Status);
+			msiDataObjRepl(*Path,"rescName=*Cache++++destRescName=*Archive++++irodsAdmin=1",*Status);
 			writeLine("stdout","*Status");
 			}
 		}
