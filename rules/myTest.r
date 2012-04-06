@@ -20,6 +20,9 @@ mytestrule{
 		if (*Tim - *Ctim > 86400) { 
 		        *Path="*Col" ++ "/*File";
 			writeLine("stdout","*Path");
+			#Replicate a file, and replicate as admin, the admin user can replicate other user files
+			msiDataObjRepl(*Path,"rescName=*Cache++++destRescName=*Archive++++irodsAdmin",*Status);
+			writeLine("stdout","*Status");
 			}
 		}
  	*ContInxOld = *ContInxNew; 
