@@ -1,4 +1,9 @@
 upppnexReplandTrim{ 
+   writeLine("serverLog","Running UPPNEX Rule Replicate and Triim from local disk Cache  
+'
+
+ 
+ ;
    *ContInxOld = 1; 
    *Count = 0; 
    #Get current Time
@@ -19,7 +24,7 @@ upppnexReplandTrim{
 		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
 		if (*Tim - *Ctim > 86400) { 
 		        *Path="*Col" ++ "/*File";
-			#writeLine("stdout","*Path");
+			writeLine("serverLog","*Path is to old will be replicated and Trimed from Cache");
 			#Replicate a file, and replicate as admin, the admin user can replicate other user files
 			msiDataObjRepl(*Path,"rescName=*Cache++++destRescName=*Archive++++irodsAdmin=1",*Status);
 #			writeLine("stdout","*Status");
