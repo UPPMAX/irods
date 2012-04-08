@@ -1,4 +1,5 @@
 upppnexReplAndTrim{ 
+delay("<PLUSET>1s</PLUSET><EF>24h</EF>") { 
 writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    *ContInxOld = 1; 
    *Count = 0; 
@@ -20,7 +21,7 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
 		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
 		if (*Tim - *Ctim > 86400) { 
 		        *Path="*Col" ++ "/*File";
-			writeLine("serverLog","*Path is to old will be replicated and Trimed from Cache");
+			writeLine("serverLog","uppnexReplAndTrim: *Path is to old will be replicated and Trimed from Cache");
 			#Replicate a file, and replicate as admin, the admin user can replicate other user files
 			msiDataObjRepl(*Path,"rescName=*Cache++++destRescName=*Archive++++irodsAdmin=1",*Status);
 #			writeLine("stdout","*Status");
@@ -37,8 +38,9 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
 		msiGetMoreRows(*GenQInp,*GenQOut,*ContInxNew);
 		}	
 	}
-writeLine("serverLog","*Count files were archived");
-
+#Serverlog for Rule is the reLog file 
+writeLine("serverLog","uppnexReplAndTrim: *Count files were archived");
+}
 }
 INPUT *Coll="%home%",*Cache="sweStoreCache",*Archive="sweStore" 
 OUTPUT ruleExecOut 
