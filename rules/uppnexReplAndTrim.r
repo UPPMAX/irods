@@ -39,7 +39,7 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
 		}	
 	}
 #Serverlog for Rule is the reLog file 
-writeLine("serverLog","uppnexReplAndTrim: *Count files were archived");
+writeLine("serverLog","uppnexReplAndTrim: *Count files were archived and removed from Cache");
 }
 }
 INPUT *Coll="%home%",*Cache="sweStoreCache",*Archive="sweStore" 
