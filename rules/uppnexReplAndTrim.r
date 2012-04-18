@@ -1,4 +1,4 @@
-upppnexReplAndTrim{ 
+upppnexReplAndTrim{ x
 delay("<PLUSET>1s</PLUSET><EF>24h</EF>") { 
 writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    *ContInxOld = 1; 
@@ -25,7 +25,7 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
 			#Replicate a file, and replicate as admin, the admin user can replicate other user files
 			msiDataObjRepl(*Path,"rescName=*Cache++++destRescName=*Archive++++irodsAdmin=1",*Status);
 #			writeLine("stdout","*Status");
-			#If status is good and replica exists, trim the file from Cache, as admin user.
+			#If status is good and replica exists, trim(and delete) the file from Cache, as admin user.
 			if (*Status == 0) {
 		        	*Count = *Count + 1; 
              			msiDataObjTrim(*Path,*Cache,"null","1","1",*Status1);
