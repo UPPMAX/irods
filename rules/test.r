@@ -1,5 +1,6 @@
 HelloWorld {
      writeLine("stdout", "Hello, world!");
+     writeLine("serverlog", "Hello, world!");
  }
-INPUT null
+INPUT *Dtim=$"86400"
 OUTPUT ruleExecOut

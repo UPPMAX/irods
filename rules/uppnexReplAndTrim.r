@@ -19,7 +19,7 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
 		*Ctim = int(*Ctime);
 		msiGetValByKey(*GenQOut,"DATA_NAME",*File);
 		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
-		if (*Tim - *Ctim > 86400) { 
+		if (*Tim - *Ctim > *Dtim) { 
 		        *Path="*Col" ++ "/*File";
 			writeLine("serverLog","uppnexReplAndTrim: *Path is to old will be replicated and Trimed from Cache");
 			#Replicate a file, and replicate as admin, the admin user can replicate other user files
@@ -42,5 +42,6 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
 writeLine("serverLog","uppnexReplAndTrim: *Count files were archived and removed from Cache");
 }
 }
-INPUT *Coll="%home%",*Cache="sweStoreCache",*Archive="sweStore" 
+#Dtim is the delete time, delete if older than 24h. 
+INPUT *Dtim=$"86400",*Cache="sweStoreCache",*Archive="sweStore" 
 OUTPUT ruleExecOut 
