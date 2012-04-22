@@ -1,4 +1,4 @@
-upppnexReplAndTrim{ x
+upppnexReplAndTrim{
 delay("<PLUSET>1s</PLUSET><EF>24h</EF>") { 
 writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    *ContInxOld = 1; 
