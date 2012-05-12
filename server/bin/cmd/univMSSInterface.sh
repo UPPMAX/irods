@@ -16,7 +16,32 @@ syncToArch () {
 	# <your command or script to copy from cache to MSS> $1 $2 
 	# e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
 #	echo $1,$2 >/opt/irods/debug.txt;
-	arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2 
+#	chksum=`jacksum -a adler32 -E hex -F "#CHECKSUM $1`
+#	arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2:checksumtype=adler32:checksumvalue=$chksum
+#	Get vault path for cache resource this is needed to get chksum from ICAT
+#	ilsresc -l sweStoreCache |grep vault|awk '{print $2}'
+#	Hardcode to minimize operations. 
+	VAULT="\/bubo\/proj\/b2011221\/swestore-cache"
+	echo $1
+#	Hack to translate system path to irods filespace path	
+	iPATH=`echo $1 | se d 's/$VAULT/\/testZone1/'`
+	md5=`isysmeta ls -l $iPATH |grep data_checksum |awk '{print $3}'`
+	if [ -n "$md5 ] 
+	then
+	  echo "String \"string1\" is not null."
+#	  arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2:checksumtype=md5:checksumvalue=$md5
+	
+	else  
+# md5sum do not exist in iCAT calculate with ichksum
+	  echo "String \"string1\" is null."
+# Iadmin cant chksum other users file
+#	  md5=`ichksum -K $iPATH | awk '{print $2}'|head -1`
+#forced to calculate md5sum on file..
+	md5=`md5sum $1|awk '{print $1}'` 
+	  arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2:checksumtype=md5:checksumvalue=$md5
+
+	fi      
+	#arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2
         return
 }
 
