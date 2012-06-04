@@ -1,5 +1,5 @@
 upppnexReplAndTrim{
-delay("<PLUSET>1s</PLUSET><EF>24h</EF>") { 
+delay("<ET>2012-06-04.08:30</ET><EF>15m</EF>") { 
 writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    *ContInxOld = 1; 
    *Count = 0; 
@@ -17,6 +17,7 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
 	foreach (*GenQOut) {
 		msiGetValByKey(*GenQOut,"DATA_CREATE_TIME",*Ctime);
 		*Ctim = int(*Ctime);
+		*Dtim = int(*Dtime);
 		msiGetValByKey(*GenQOut,"DATA_NAME",*File);
 		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
 		if (*Tim - *Ctim > *Dtim) { 
@@ -44,5 +45,5 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    }
 }
 #Dtim is the delete time, delete if older than 24h. 
-INPUT *Dtim=$"86400",*Cache="sweStoreCache",*Archive="sweStore" 
+INPUT *Dtime=$"86400",*Cache="sweStoreCache",*Archive="sweStore" 
 OUTPUT ruleExecOut 
