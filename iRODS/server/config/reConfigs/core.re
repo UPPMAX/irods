@@ -150,7 +150,7 @@ acTicketPolicy {}
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); msiSetRescSortScheme("random"); msiSetRescSortScheme("byRescClass"); }
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc7%demoResc8","preferred"); }
 # acSetRescSchemeForCreate {ON($objPath like "/tempZone/home/rods/protected/*") {msiOprDisallowed;} }
-acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); }
+acSetRescSchemeForCreate {msiSetDefaultResc("sweStore","forced"); }
 acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }
 # acSetRescSchemeForCreate {msiGetSessionVarValue("all","all"); msiSetDefaultResc("demoResc","null"); }
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","forced"); msiSetRescSortScheme("random"); msiSetRescSortScheme("byRescClass"); }
@@ -199,11 +199,11 @@ acSetMultiReplPerResc { }
 # 4) acPostProcForPut - Rule for post processing the put operation.
 # 5) acPostProcForCopy - Rule for post processing the copy operation.
 # 6) acPostProcForFilePathReg - Rule for post processing the registration
-# of a physical file path (e.g. - ireg command).
 # 7) acPostProcForCreate - Rule for post processing of data object create.
 # 8) acPostProcForOpen - Rule for post processing of data object open.
 # 8a) acPostProcForPhymv - Rule for post processing of data object phymv.
 # 8b) acPostProcForRepl - Rule for post processing of data object repl.
+# of a physical file path (e.g. - ireg command).
 # 
 # Currently, three post processing functions can be used individually or
 # in sequence by these rules. 
@@ -321,8 +321,8 @@ acSetChkFilePathPerm {msiSetChkFilePathPerm("disallowPathReg"); }
 # should be used. The default policy is the trash can will be used. Only
 # one function can be called.
 #    msiNoTrashCan() - Set the policy to no trash can.
-acTrashPolicy { }
-# acTrashPolicy {msiNoTrashCan; }
+#acTrashPolicy { }
+acTrashPolicy {msiNoTrashCan; }
 #
 # 14) acSetPublicUserPolicy - This rule set the policy for the set of 
 # operations that are allowable for the user "public" Only one function can 

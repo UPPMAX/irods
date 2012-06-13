@@ -15,14 +15,38 @@
 syncToArch () {
 	# <your command or script to copy from cache to MSS> $1 $2 
 	# e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
-	return
+	# Get vault path for cache resource this is needed to get chksum from ICAT
+	# ilsresc -l sweStoreCache |grep vault|awk '{print $2}'
+	# Hardcode to minimize operations. 
+	VAULT="\/bubo\/proj\/b2011221\/swestore-cache"
+	# Hack to translate system path to irods filespace path	
+	iPATH=`echo $1 | sed 's/'$VAULT'/\/testZone1/'`
+	md5=`isysmeta ls -l $iPATH |grep data_checksum |awk '{print $3}'`
+	if [ -n "$md5" ] 
+	then
+	  arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2:checksumtype=md5:checksumvalue=$md5
+	else  
+	  # md5sum do not exist in iCAT calculate with ichksum
+	  # Iadmin cant chksum other users file
+	  #  md5=`ichksum -K $iPATH | awk '{print $2}'|head -1`
+	  #forced to calculate md5sum on file..
+	  md5=`md5sum $1|awk '{print $1}'` 
+	  arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2:checksumtype=md5:checksumvalue=$md5
+	fi      
+        return
 }
 
 # function for staging a file $1 from the MSS to file $2 on disk
 stageToCache () {
 	# <your command to stage from MSS to cache> $1 $2	
 	# e.g: /usr/local/bin/rfcp rfioServerFoo:$1 $2
-	return
+	if [ -e $2 ]; 
+		then 
+		rm -rf $2; 
+		fi
+#	echo $1,$2 >/opt/irods/debugstage.txt;
+	arccp -R 5 srm://srm.swegrid.se/ops/uppnex_test$1 $2
+        return
 }
 
 # function to create a new directory $1 in the MSS logical name space
@@ -43,6 +67,8 @@ chmod () {
 rm () {
 	# <your command to remove a file from the MSS> $1
 	# e.g: /usr/local/bin/rfrm rfioServerFoo:$1
+        echo $1,$2 >/opt/irods/debugrm.txt;
+	arcrm -t 30 srm://srm.swegrid.se/ops/uppnex_test$1
 	return
 }
 
@@ -50,13 +76,14 @@ rm () {
 mv () {
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
-       return
+       return -1
 }
 
 # function to do a stat on a file $1 stored in the MSS
 stat () {
 	# <your command to retrieve stats on the file> $1
-	# e.g: output=`/usr/local/bin/rfstat rfioServerFoo:$1`
+        output=`arcls -l srm://srm.swegrid.se/ops/uppnex_test$1 | grep $1`
+#	echo $output
 	error=$?
 	if [ $error != 0 ] # if file does not exist or information not available
 	then
@@ -70,7 +97,19 @@ stat () {
 	#                         device id ("devid"), file size ("size"), last access time ("atime"),
 	#                         last modification time ("mtime"), last change time ("ctime"),
 	#                         block size in bytes ("blksize"), number of blocks ("blkcnt")
-	# e.g: device=`echo $output | awk '{print $3}'`	
+	device=0
+	inode=0
+	mode=0
+	nlink=0
+	uid=0
+	gid=0
+	devid=0
+	blksize=0
+	blkcnt=0
+	atime=0
+	mtime=0
+	ctime=`echo $output | awk '{print $4"-"$5}' |sed 's/:/./g'`	
+	size=`echo $output | awk '{print $3}'`	
 	# Note 1: if some of these parameters are not relevant, set them to 0.
 	# Note 2: the time should have this format: YYYY-MM-dd-hh.mm.ss with: 
 	#                                           YYYY = 1900 to 2xxxx, MM = 1 to 12, dd = 1 to 31,
