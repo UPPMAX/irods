@@ -53,6 +53,7 @@ stageToCache () {
 mkdir () {
 	# <your command to make a directory in the MSS> $1
 	# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
+        /opt/d-cache/srm/bin/srmmkdir srm://srm.swegrid.se/ops/uppnex_test$1
 	return
 }
 
@@ -60,6 +61,7 @@ mkdir () {
 chmod () {
 	# <your command to modify ACL> $1 $2
 	# e.g: /usr/local/bin/rfchmod $2 rfioServerFoo:$1
+
 	return
 }
 
@@ -76,13 +78,14 @@ rm () {
 mv () {
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
-       return -1
+       /opt/d-cache/srm/bin/srmmv srm://srm.swegrid.se/ops/uppnex_test$1 srm://srm.swegrid.se/ops/uppnex_test$2
+       return
 }
 
 # function to do a stat on a file $1 stored in the MSS
 stat () {
 	# <your command to retrieve stats on the file> $1
-        output=`arcls -l srm://srm.swegrid.se/ops/uppnex_test$1 | grep $1`
+        output=`arcls -l srm://srm.swegrid.se/ops/uppnex_test$1`
 #	echo $output
 	error=$?
 	if [ $error != 0 ] # if file does not exist or information not available
@@ -108,8 +111,17 @@ stat () {
 	blkcnt=0
 	atime=0
 	mtime=0
-	ctime=`echo $output | awk '{print $4"-"$5}' |sed 's/:/./g'`	
-	size=`echo $output | awk '{print $3}'`	
+	ctime=`echo $output |grep $1 | awk '{print $11"-"$12}' |sed 's/:/./g'`	
+	if [ -z "$ctime" ]
+        then
+          ctime=0
+	fi
+	size=`echo $output |grep $1 | awk '{print $10}'`	
+	if [ -z "$size" ]
+        then
+          size=0
+	fi
+
 	# Note 1: if some of these parameters are not relevant, set them to 0.
 	# Note 2: the time should have this format: YYYY-MM-dd-hh.mm.ss with: 
 	#                                           YYYY = 1900 to 2xxxx, MM = 1 to 12, dd = 1 to 31,
