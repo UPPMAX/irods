@@ -24,9 +24,12 @@ acCreateUserF1 {
   msiCommit;  }
 acVacuum(*arg1) { delay(*arg1) { msiVacuum;} }
 acCreateDefaultCollections { acCreateUserZoneCollections; }
-acCreateUserZoneCollections { 
-  acCreateCollByAdmin("/"++$rodsZoneProxy++"/home", $otherUserName);
-  acCreateCollByAdmin("/"++$rodsZoneProxy++"/trash/home", $otherUserName); }
+#No user folders
+acCreateUserZoneCollections { }
+#This is commented out to disable user folders when creating new users.
+#acCreateUserZoneCollections { 
+#  acCreateCollByAdmin("/"++$rodsZoneProxy++"/home", $otherUserName);
+#  acCreateCollByAdmin("/"++$rodsZoneProxy++"/trash/home", $otherUserName); }
 #acCreateCollByAdmin(*parColl, *childColl) {msiCreateCollByAdmin(*parColl,*childColl); }
 acCreateCollByAdmin(*parColl,*childColl) {
   msiCreateCollByAdmin(*parColl,*childColl); }
