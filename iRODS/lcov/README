@@ -1,0 +1,23 @@
+'lcov' is a GNU tool which provides information about what parts of a 
+program are actually executed (i.e. "covered") while running a particular 
+test case. It is an extension of the 'gcov' tool.
+
+To use 'lcov' for iRODS, please do the following:
+
+1) Install the 'gcov' and 'lcov' tools
+
+2) Compile and build the iRODS software with 'gcov' by uncommenting the line
+  # USE_GCOV = 1
+in config/platform.mk and rebuild the iRODS software (make clean;make).
+
+3) Build the lcov html index:
+  cd lcov
+  ./lcovirods.csh clean	# start the coverage run from the beginning
+  run tests (without any, the script below will just fail with no .gcda files)
+  ./lcovirods.csh
+
+4) To see the report, open ./data/index.html in a web browser.
+Note that some browsers may not be able to properly open files outside
+of the user's home directory.  When using 'pivo' (Ubuntu/Firefox) for
+example, you may need to copy the data directory from the Tinderbox
+build area (/tbox/IRODS_BUILD/iRODS).
