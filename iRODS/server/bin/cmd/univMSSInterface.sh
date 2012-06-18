@@ -13,27 +13,29 @@
  
 # function for the synchronization of file $1 on local disk resource to file $2 in the MSS
 syncToArch () {
-        # <your command or script to copy from cache to MSS> $1 $2
-        # e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
-	# Hardcode to minimize operations.
+	# <your command or script to copy from cache to MSS> $1 $2 
+	# e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
+	# Get vault path for cache resource this is needed to get chksum from ICAT
+	# ilsresc -l sweStoreCache |grep vault|awk '{print $2}'
+	# Hardcode to minimize operations. 
         VAULT="\/data\/rescs\/swestoreArchCacheResc"
+	# Hack to translate system path to irods filespace path	
 	iPATH=`echo $1 | sed 's/'$VAULT'/\/ssUppnexZone/'`       
-	#Get md5 from iCAT
         md5=`isysmeta ls -l $iPATH |grep data_checksum |awk '{print $3}' |head -1`
-
         if [ -n "$md5" ]
         then
 	  arccp -R 5 $1 srm://srm.swegrid.se/snic/uppnex/arch2$2:checksumtype=md5:checksumvalue=$md5
 	else
-          # md5sum do not exist in iCAT calculate with ichksum
-          # Iadmin cant chksum other users file
-          #  md5=`ichksum -K $iPATH | awk '{print $2}'|head -1`
-          #forced to calculate md5sum on file..
-          md5=`md5sum $1|awk '{print $1}'`
+	  # md5sum do not exist in iCAT calculate with ichksum
+	  # Iadmin cant chksum other users file
+	  #  md5=`ichksum -K $iPATH | awk '{print $2}'|head -1`
+	  #forced to calculate md5sum on file..
+	  md5=`md5sum $1|awk '{print $1}'` 
   	  arccp -R 5 $1 srm://srm.swegrid.se/snic/uppnex/arch2$2:checksumtype=md5:checksumvalue=$md5
-	fi
+	fi      
         return
 }
+
 # function for staging a file $1 from the MSS to file $2 on disk
 stageToCache () {
 	# <your command to stage from MSS to cache> $1 $2	
@@ -51,6 +53,7 @@ stageToCache () {
 mkdir () {
 	# <your command to make a directory in the MSS> $1
 	# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
+        /opt/d-cache/srm/bin/srmmkdir srm://srm.swegrid.se/ops/uppnex_test$1
 	return
 }
 
@@ -58,6 +61,7 @@ mkdir () {
 chmod () {
 	# <your command to modify ACL> $1 $2
 	# e.g: /usr/local/bin/rfchmod $2 rfioServerFoo:$1
+
 	return
 }
 
@@ -65,8 +69,8 @@ chmod () {
 rm () {
 	# <your command to remove a file from the MSS> $1
 	# e.g: /usr/local/bin/rfrm rfioServerFoo:$1
-        echo $1,$2 >/opt/irods/debugrm.txt;
-	arcrm -t 30 srm://srm.swegrid.se/ops/uppnex_test$1
+#        echo $1,$2 >/opt/irods/debugrm.txt;
+	arcrm -t 30 srm://srm.swegrid.se/snic/uppnex/arch2$1
 	return
 }
 
@@ -74,13 +78,14 @@ rm () {
 mv () {
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
-       return -1
+       /opt/d-cache/srm/bin/srmmv srm://srm.swegrid.se/snic/uppnex/arch2$1 srm://srm.swegrid.se/snic/uppnex/arch2$2
+       return
 }
 
 # function to do a stat on a file $1 stored in the MSS
 stat () {
 	# <your command to retrieve stats on the file> $1
-        output=`arcls -l srm://srm.swegrid.se/snic/uppnex/arch2$1 | grep $1`
+        output=`arcls -l srm://srm.swegrid.se/snic/uppnex/arch2$1`
 #	echo $output
 	error=$?
 	if [ $error != 0 ] # if file does not exist or information not available
@@ -106,8 +111,16 @@ stat () {
 	blkcnt=0
 	atime=0
 	mtime=0
-	ctime=`echo $output | awk '{print $4"-"$5}' |sed 's/:/./g'`	
-	size=`echo $output | awk '{print $3}'`	
+	ctime=`echo $output |grep $1 | awk '{print $11"-"$12}' |sed 's/:/./g'`	
+	if [ -z "$ctime" ]
+        then
+          ctime=0
+	fi
+	size=`echo $output |grep $1 | awk '{print $10}'`	
+	if [ -z "$size" ]
+        then
+          size=0
+	fi
 	# Note 1: if some of these parameters are not relevant, set them to 0.
 	# Note 2: the time should have this format: YYYY-MM-dd-hh.mm.ss with: 
 	#                                           YYYY = 1900 to 2xxxx, MM = 1 to 12, dd = 1 to 31,

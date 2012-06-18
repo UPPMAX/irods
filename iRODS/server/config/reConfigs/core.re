@@ -324,8 +324,8 @@ acSetChkFilePathPerm {msiSetChkFilePathPerm("disallowPathReg"); }
 # should be used. The default policy is the trash can will be used. Only
 # one function can be called.
 #    msiNoTrashCan() - Set the policy to no trash can.
-acTrashPolicy { }
-# acTrashPolicy {msiNoTrashCan; }
+#acTrashPolicy { }
+acTrashPolicy {msiNoTrashCan; }
 #
 # 14) acSetPublicUserPolicy - This rule set the policy for the set of 
 # operations that are allowable for the user "public" Only one function can 
