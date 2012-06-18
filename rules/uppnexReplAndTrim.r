@@ -45,5 +45,5 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    }
 }
 #Dtim is the delete time, delete if older than 24h. 
-INPUT *Dtime=$"86400",*Cache="sweStoreCache",*Archive="sweStore" 
+INPUT *Dtime=$"86400",*Cache="swestoreArchCacheResc",*Archive="swestoreArchResc" 
 OUTPUT ruleExecOut 

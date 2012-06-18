@@ -153,8 +153,8 @@ acTicketPolicy {}
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); msiSetRescSortScheme("random"); msiSetRescSortScheme("byRescClass"); }
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc7%demoResc8","preferred"); }
 # acSetRescSchemeForCreate {ON($objPath like "/tempZone/home/rods/protected/*") {msiOprDisallowed;} }
-acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","null"); }
-acSetRescSchemeForRepl {msiSetDefaultResc("demoResc","null"); }
+acSetRescSchemeForCreate {msiSetDefaultResc("swestoreArchResc","forced"); }
+acSetRescSchemeForRepl {msiSetDefaultResc("swestoreArchCacheResc","null"); }
 # acSetRescSchemeForCreate {msiGetSessionVarValue("all","all"); msiSetDefaultResc("demoResc","null"); }
 # acSetRescSchemeForCreate {msiSetDefaultResc("demoResc","forced"); msiSetRescSortScheme("random"); msiSetRescSortScheme("byRescClass"); }
 #
