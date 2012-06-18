@@ -1,0 +1,4 @@
+#!/bin/bash
+
+DAYNUM=$( date +%u );
+/db/postgres/pgsql/bin/pg_dump -U irods -w ICAT | gzip -c > /opt/backup/db/daily/icat.backup.$DAYNUM.sql.gz
