@@ -76,7 +76,8 @@ rm () {
 mv () {
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
-       return -1
+       /opt/d-cache/srm/bin/srmmv srm://srm.swegrid.se/ops/uppnex_test$1 srm://srm.swegrid.se/ops/uppnex_test$2
+       return
 }
 
 # function to do a stat on a file $1 stored in the MSS
