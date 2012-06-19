@@ -43,9 +43,20 @@ delete_expired_users() {
 
 connect_users_and_groups() {
   for group in $(getent group|grep b20|cut -f1 -d:); do
-    echo "For group $group, there are the following members:"
+	echo "Now creating group $group ...";
+	if [[ ! "" == `iadmin lg|grep $group` ]]; then
+	  iadmin mkgroup $group;
+	fi
+	echo "Creating folder for group $group ...";
+	projfolder="/ssUppnexZone/proj/$group";
+	imkdir $projfolder;
+	ichmod own $group $projfolder;
+    echo "Adding members to group $group ..."
     for username in $(getent group|grep $group|tr ":" "\n"|tail -n +4|tr "," "\n");
-     do echo "Member: $username";
+     do echo "Adding user $username to $group ...";
+     if [[ ! "" == `iadmin lg $group|grep $username` ]]; then
+       iadmin atg $group $username;
+	 fi
     done;
   done;
 }
