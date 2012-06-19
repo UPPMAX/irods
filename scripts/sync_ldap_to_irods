@@ -51,7 +51,7 @@ connect_users_and_groups() {
 }
 
 case $1 in
-  add_users)i $1;;
+  add_users) $1;;
   delete_expired_users) $1;;
   connect_users_and_groups) $1;;
   *) echo "Usage:"
