@@ -53,7 +53,7 @@ stageToCache () {
 mkdir () {
 	# <your command to make a directory in the MSS> $1
 	# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
-        /opt/d-cache/srm/bin/srmmkdir srm://srm.swegrid.se/ops/uppnex_test$1
+        /opt/d-cache/srm/bin/srmmkdir srm://srm.swegrid.se/snic/uppnex/arch2$1
 	return
 }
 
