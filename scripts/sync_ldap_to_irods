@@ -9,6 +9,9 @@
 #
 
 now=$(date +%s);
+if [[ ! -n `env|grep iRODS` ]];then 
+  export PATH=/opt/irods/iRODS/clients/icommands/bin:$PATH;
+fi
 
 # Add unexpired, unexisting users
 
