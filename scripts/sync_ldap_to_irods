@@ -62,7 +62,7 @@ connect_users_and_groups() {
 	fi
     echo "Adding members to group $group ..."
 	for username in $(getent group|grep $group|tr ":" "\n"|tail -n +4|tr "," "\n"); do
-      if [[ ! "" == `iadmin lg $group|grep $username` ]]; then
+      if [[ "" == `iadmin lg $group|grep $username` ]]; then
 	    echo "User $username missing from $group, so adding now ...";
         iadmin atg $group $username;
       fi
