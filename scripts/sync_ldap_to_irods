@@ -49,14 +49,19 @@ connect_users_and_groups() {
 	fi
 	echo "Creating folder for group $group ...";
 	projfolder="/ssUppnexZone/proj/$group";
+	# Create folder
 	imkdir $projfolder;
+	# Make the group to own the project folder
 	ichmod own $group $projfolder;
+	# Prevent access for "anyone"
+	ichmod null public $projfolder;
     echo "Adding members to group $group ..."
     for username in $(getent group|grep $group|tr ":" "\n"|tail -n +4|tr "," "\n");
-     do echo "Adding user $username to $group ...";
-     if [[ ! "" == `iadmin lg $group|grep $username` ]]; then
-       iadmin atg $group $username;
-	 fi
+	do echo "Adding user $username to $group ...";
+      if [[ ! "" == `iadmin lg $group|grep $username` ]]; then
+		# Add user to group
+        iadmin atg $group $username;
+      fi
     done;
   done;
 }
