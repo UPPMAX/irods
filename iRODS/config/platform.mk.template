@@ -52,6 +52,10 @@ CCFLAGS += -fprofile-arcs -ftest-coverage
 LDRFLAGS += -lgcov
 endif
 
+ifdef OOI_CI
+CCFLAGS += -DOOI_CI
+endif
+
 ifdef CCFLAGS
 MY_CFLAG += $(CCFLAGS)
 endif
@@ -308,3 +312,9 @@ endif
 ifdef PAM_AUTH_CHECK_PROG
 MY_CFLAG+= -DPAM_AUTH_CHECK_PROG=\"$(PAM_AUTH_CHECK_PROG)\"
 endif
+
+ifdef OOI_CI
+LDADD+= -ljansson
+CL_LDADD+= -ljansson
+endif
+
