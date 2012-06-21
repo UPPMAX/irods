@@ -59,13 +59,10 @@ connect_users_and_groups() {
 	  # Prevent access for "anyone"
 	  ichmod null public $projfolder;
 	fi
-    echo "Adding members to group $group ..."
 	 for username in $(getent group|grep $group|tr ":" "\n"|tail -n +4|tr "," "\n"); do
       if [[ "" == `iadmin lg $group|grep $username` ]]; then
-	    echo "User $username missing from $group, so adding now ...";
-        if [[ ! -n `iadmin lu|grep -P "^$username#"` ]]; then
-			echo "Skipping invalid user $username ...";
-		else
+        if [[ -n `iadmin lu|grep -P "^$username#"` ]]; then
+			echo "Valid user $username missing from $group, so adding now ..."; 
             iadmin atg $group $username;
 		fi
       fi
