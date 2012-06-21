@@ -37,6 +37,7 @@ extern "C" {
 					     * and rcStreamClose to read */
 #define DOUBLE_MS_T             "DOUBLE_PI"
 #define FLOAT_MS_T              "FLOAT_PI"
+#define BOOL_MS_T               "BOOL_PI"
 #define DataObjInp_MS_T         "DataObjInp_PI"
 #define DataObjCloseInp_MS_T    "DataObjCloseInp_PI"
 #define DataObjCopyInp_MS_T     "DataObjCopyInp_PI"
@@ -79,6 +80,8 @@ extern "C" {
 #define NccfGetVarOut_MS_T	"NccfGetVarOut_PI"
 #define NcInqOut_MS_T		"NcInqOut_PI"
 #define NcInqGrpsOut_MS_T	"NcInqGrpsOut_PI"
+#define Dictionary_MS_T		"Dictionary_PI"
+#define DictArray_MS_T		"DictArray_PI"
 
 /* micro service input/output parameter */
 typedef struct MsParam {
