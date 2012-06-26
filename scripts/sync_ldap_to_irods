@@ -45,7 +45,7 @@ delete_expired_users() {
 # cmd_getallgroup = 'getent group|grep -P "[^\w]samuel[^\w]"|cut -f 1 -d\:';
 
 connect_users_and_groups() {
-  for group in $(getent group|grep b20|cut -f1 -d:); do
+  for group in $(getent group|grep -P "^(a|b)20"|cut -f1 -d:); do
     if [[ "" == `iadmin lg|grep $group` ]]; then
       echo "Group $group missing, so creating now ...";
       iadmin mkgroup $group;
