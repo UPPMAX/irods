@@ -1,5 +1,22 @@
 upppnexReplAndTrim{
-delay("<ET>2012-06-04.03:05ET><EF>24h</EF>") { 
+#Get current time in unix
+msiGetIcatTime(*Time,"unix");
+#get human formatted date, year-month-day
+msiGetFormattedSystemTime(*Cdate,"human","%d-%02d-%02d");
+#Translate user input and full date, to unix time
+msiHumanToSystemTime(*Cdate++"-"++*RuleStartTime,*Systime);
+#Check if time has passed or not. 
+if(int(*Time) >int(*Systime))
+        {
+	writeLine("stdout","Exekveringstid har passerat läggerpå 24h");
+        *ExtimeUnix = str(int(*Systime) + 86400);
+        }
+	else
+	{
+	writeLine("stdout","Exekveringstid har inte passerat");
+        *ExtimeUnix=str(*Systime);
+        }
+delay("<ET>"++*ExtimeUnix++"</ET><EF>24h</EF>") {
 writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    *ContInxOld = 1; 
    *Count = 0; 
@@ -17,7 +34,7 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
 	foreach (*GenQOut) {
 		msiGetValByKey(*GenQOut,"DATA_CREATE_TIME",*Ctime);
 		*Ctim = int(*Ctime);
-                *Dtim = int(*Dtime);
+                *Dtim = int(*DeleteOlderThan);
 		msiGetValByKey(*GenQOut,"DATA_NAME",*File);
 		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
 		if (*Tim - *Ctim > *Dtim) { 
@@ -45,5 +62,5 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    }
 }
 #Dtim is the delete time, delete if older than 24h. 
-INPUT *Dtime=$"86400",*Cache="swestoreArchCacheResc",*Archive="swestoreArchResc" 
+INPUT *RuleStartTime=$"03:00:00",*DeleteOlderThan=$"86400",*Cache="swestoreArchCacheResc",*Archive="swestoreArchResc" 
 OUTPUT ruleExecOut 
