@@ -53,7 +53,7 @@ connect_users_and_groups() {
     
     # Create the proj folder, if missing
     projfolder="/ssUppnexZone/proj/$group";
-    if [[ "ERROR*" == `ils $projfolder` ]]; then
+    if [[ $(ils $projfolder 2>&1) == ERROR* ]]; then
       echo "Creating folder for group $group ...";
       # Create folder
       imkdir $projfolder;
