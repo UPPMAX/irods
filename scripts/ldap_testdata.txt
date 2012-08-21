@@ -1,5 +1,5 @@
 dn: uid=fysnon,ou=People,dc=uppmax,dc=uu,dc=se
-shadowExpire: 15796
+shadowExpire: 18396
 uid: fysnon
 
 dn: uid=kuvj,ou=People,dc=uppmax,dc=uu,dc=se
@@ -43,6 +43,6 @@ shadowExpire: 15676
 uid: wumom
 
 dn: uid=tosyk,ou=People,dc=uppmax,dc=uu,dc=se
-shadowExpire: 16161
+shadowExpire: 13461
 uid: tosyk
 
