@@ -3,29 +3,44 @@ import sys, re
 import subprocess as sp
 
 class SyncRunner(object):
-    def run(self):
-        posixtime = self.get_posixtime()
+    def __init__(self):
+        self.users = []
+        self.posixtime = self.get_posixtime()
+        # Info types to sync, from LDAP
+        self.infotypes = ["shadowExpire", "uid"]
+        self.skipusers_patterns = ["grid"] 
         
+    def run(self):
+        self.posixtime = self.get_posixtime()
         self.add_new_users()
         # self.delete_expired_users()
         # self.connect_users_and_groups()
     
     def add_new_users(self):
-        infotypes = ["shadowExpire", "uid"]
-        #userinfo = self.get_userinfo_from_ldap(infotypes)
-        userinfo = self.get_userinfo_from_ldap_dummy(infotypes)
-        users = []
+        # TODO: Activate real method
+        #userinfo = self.get_userinfo_from_ldap(self.infotypes)
+        userinfo = self.get_userinfo_from_ldap_dummy(self.infotypes)
+        
         for userpart in userinfo.split("\n\n"):
             try: 
                 user = User()
                 user.username = self.get_match("uid: (\w+)", 1, userpart)
                 expiretime_d = int(self.get_match("shadowExpire: (\d+)", 1, userpart))
                 user.expirytime = expiretime_d * 24 * 3600
-                users.append(user)
+
+                # Test if username does not contain any of the skip pattern 
+                skip_user = False
+                for pattern in self.skipusers_patterns:
+                    if pattern in user.username:
+                        skip_user = True
+                
+                if not skip_user:
+                    self.users.append(user)
             except StopIteration:
                 pass
+
         # TODO: Remove debug code
-        for user in users:
+        for user in self.users:
             print user.username + ", " + str(user.expirytime)
         
     def get_userinfo_from_ldap(self, infotypes):
