@@ -12,7 +12,7 @@ uid: juoqu
 
 dn: uid=umsukok,ou=People,dc=uppmax,dc=uu,dc=se
 shadowExpire: 17257
-uid: umsukok
+uid: gridumsukok
 
 dn: uid=motkk,ou=People,dc=uppmax,dc=uu,dc=se
 shadowExpire: 17257
