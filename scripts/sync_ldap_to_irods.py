@@ -13,13 +13,20 @@ class SyncRunner(object):
     
     def add_new_users(self):
         infotypes = ["shadowExpire", "uid"]
-        userinfo = self.get_userinfo_from_ldap(infotypes)
+        #userinfo = self.get_userinfo_from_ldap(infotypes)
+        userinfo = self.get_userinfo_from_ldap_dummy(infotypes)
         
     def get_userinfo_from_ldap(self, infotypes):
         ldapcmd = "ldapsearch -x -LLL '(uid=*)'"
         for infotype in infotypes:
             ldapcmd += " %s" % infotype
         output = self.exec_cmd(ldapcmd)
+        return output
+
+    def get_userinfo_from_ldap_dummy(self, infotypes):
+        f = open("ldap_testdata.txt")
+        output = f.read()
+        return output
     
     def get_posixtime(self):
         now = datetime.now()
