@@ -1,11 +1,10 @@
 from datetime import *
-import sys, os, commands 
+import sys, re 
 import subprocess as sp
 
 class SyncRunner(object):
     def run(self):
         posixtime = self.get_posixtime()
-        print posixtime
         
         self.add_new_users()
         # self.delete_expired_users()
@@ -15,6 +14,19 @@ class SyncRunner(object):
         infotypes = ["shadowExpire", "uid"]
         #userinfo = self.get_userinfo_from_ldap(infotypes)
         userinfo = self.get_userinfo_from_ldap_dummy(infotypes)
+        users = []
+        for userpart in userinfo.split("\n\n"):
+            try: 
+                user = User()
+                user.username = self.get_match("uid: (\w+)", 1, userpart)
+                expiretime_d = int(self.get_match("shadowExpire: (\d+)", 1, userpart))
+                user.expirytime = expiretime_d * 24 * 3600
+                users.append(user)
+            except StopIteration:
+                pass
+        # TODO: Remove debug code
+        for user in users:
+            print user.username + ", " + str(user.expirytime)
         
     def get_userinfo_from_ldap(self, infotypes):
         ldapcmd = "ldapsearch -x -LLL '(uid=*)'"
@@ -41,6 +53,13 @@ class SyncRunner(object):
             sys.stderr.write("ERROR: Could not execute command: " + command)
             raise
         return output
+
+    def get_match(self, pattern, group, userpart):
+        it = re.finditer(pattern, userpart, re.MULTILINE | re.DOTALL)
+        m = it.next()
+        match = m.group(group)
+        return match
+
     
 #    def get_users_from_ldap(self):
 #        #cmd = 
@@ -63,6 +82,12 @@ class SyncRunner(object):
 #        "awk '$1*3600*24 >= '$now' { print $2 }'|" +
 #        # Delete empty rows
 #        "sed '/^$/d'"
+    
+class User(object):
+    def __init__(self):
+        self.username = None
+        self.expirytime = None
+        
     
 if __name__ == "__main__":
     syncrunner = SyncRunner()
