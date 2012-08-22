@@ -52,7 +52,12 @@ class SyncRunner(object):
                     sys.stderr.write("Now adding user %s to group %s ...\n" % (username,group.groupname))
                     irods.add_user_to_group(username, group.groupname)
                     
-
+        # Create project folders for groups
+        irods.create_folder_with_owner(projfolder, "public")
+        for group in groups:
+            projfolder="/ssUppnexZone/proj/" + group.groupname
+            if not irods.folder_exists(projfolder):
+                irods.create_folder_with_owner(projfolder, group.groupname)
                 
         #for group in groups:
         #    print "Group: " + group.groupname
@@ -230,10 +235,21 @@ class IRodsConnector(object):
         cmd = self.get_iadmin_p() + " atg %s %s" % (groupname, username)
         exec_cmd(cmd)
         
+    def folder_exists(self, folder):
+        cmd = self.get_ils_p() + " " + folder
+        stdout,stderr = exec_cmd(cmd, get_stderr=True)
+        
+    def create_folder_with_owner(self, folder, owner):
+        cmd = "%s mkdir %s %s" % (self.get_iadmin_p(), folder, owner)
+        exec_cmd(cmd)
+        
     def get_iadmin_p(self):
         return os.path.join(self.icommands_path, "iadmin")
     
-
+    def get_ils_p(self):
+        return os.path.join(self.icommands_path, "ils")
+    
+    
 # Tests
 
 class TestSyncRunner(object):
@@ -295,17 +311,28 @@ class TestSyncRunner(object):
 
 # Some global methods
 
-def exec_cmd(command):
-    output = ""        
-    try:
-        print("Now executing: " + command)
-        commandlist = command.split(" ")
-        p = sp.Popen(commandlist, stdout=sp.PIPE)
-        output = p.stdout.read()
-    except Exception:
-        sys.stderr.write("ERROR: Could not execute command: " + command)
-        raise
-    return output
+def exec_cmd(command, get_stderr=False):
+    #print("Now executing: " + command)
+    commandlist = command.split(" ")
+    stdout = ""  
+    if get_stderr:
+        stderr = ""
+        try:
+            p = sp.Popen(commandlist, stdout=sp.PIPE, stderr=sp.PIPE)
+            stdout = p.stdout.read()
+            stderr = p.stderr.read()
+        except Exception:
+            sys.stderr.write("ERROR: Could not execute command: " + command)
+            raise
+        return stdout,stderr
+    else:
+        try:
+            p = sp.Popen(commandlist, stdout=sp.PIPE)
+            stdout = p.stdout.read()
+        except Exception:
+            sys.stderr.write("ERROR: Could not execute command: " + command)
+            raise
+        return stdout
 
 # Run main
 
