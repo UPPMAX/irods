@@ -109,6 +109,10 @@ class IRodsConnector(object):
     def create_user(self, username, usertype="rodsuser"):
         cmd = "%s mkuser %s %s" % (self.get_iadmin_p(), username, usertype)
         exec_cmd(cmd)
+        
+    def delete_user(self, username):
+        cmd = "%s rmuser %s" % (self.get_iadmin_p(), username)
+        exec_cmd(cmd)
 
     def user_exists(self, username):
         cmd = self.get_iadmin_p() + " lu " + username
@@ -118,6 +122,13 @@ class IRodsConnector(object):
             return False
         else:
             return True
+        
+    def list_users_in_zone(self, zone):
+        cmd = self.get_iadmin_p() + " luz " + zone
+        output = exec_cmd(cmd)
+        users = str.strip(output).split("\n")
+        return users
+        
         
     def get_iadmin_p(self):
         return os.path.join(self.icommands_path, "iadmin")
@@ -162,11 +173,11 @@ class TestSyncRunner(object):
         
     @classmethod    
     def delete_all_users(self):
-        iadmin_p = "/opt/irods/iRODS/clients/icommands/bin/iadmin"
-        for user in str.strip(exec_cmd(iadmin_p + " luz ssUppnexZone")).split("\n"):
+        irods = IRodsConnector()
+        for user in irods.list_users_in_zone("ssUppnexZone"):
             if not "rods" in user:
                 sys.stderr.write("Now deleting user " + user + "...\n")
-                exec_cmd(iadmin_p + " rmuser " + user)
+                irods.delete_user(user)
 
 
 
