@@ -6,6 +6,8 @@ import subprocess as sp
 from nose.tools import assert_equal
 from nose.tools import assert_not_equal
 
+getent_path = "/home/samuel/wksp/irods/scripts/getent"
+
 class SyncRunner(object):
     def __init__(self):
         self.users = []
@@ -36,6 +38,10 @@ class SyncRunner(object):
                 
         # Connect users and groups
         
+        groups = self.get_groups()
+        #for group in groups:
+        #    print "Group: " + group.groupname
+            
         #connect_users_and_groups() {
         #  for group in $(getent group|grep -P "^(a|b)20"|cut -f1 -d:); do
         #    if [[ "" == `iadmin lg|grep $group` ]]; then
@@ -106,7 +112,7 @@ class SyncRunner(object):
              if user.expirytime > user.get_posixtime():
                  filtered_users.append(user)
         return filtered_users
-                       
+
     def get_userinfo_from_ldap(self, infotypes):
         ldapcmd = "ldapsearch -x -LLL '(uid=*)'"
         for infotype in infotypes:
@@ -114,8 +120,23 @@ class SyncRunner(object):
         output = exec_cmd(ldapcmd)
         return output
 
+    def get_groups(self):
+        groups = []
+        cmd = getent_path + " group"
+        groupdata = exec_cmd(cmd)
+        groupdata = groupdata.strip()
+        for line in groupdata.split("\n"):
+            cols = line.split(":")
+            group = Group()
+            group.groupname = cols[0]
+            group.usernames.extend(cols[3].split(","))
+            groups.append(group)
+        return groups
+
+        # |grep -P "^(a|b)20"|cut -f1 -d:)"
+
     def get_match(self, pattern, group, userpart):
-        it = re.finditer(pattern, userpart, re.MULTILINE | re.DOTALL)
+        it = re.finditer(pattern, userpart, re.MULTILINE|re.DOTALL)
         m = it.next()
         match = m.group(group)
         return match
@@ -137,6 +158,10 @@ class User(object):
         posixtime = int(now.strftime("%s"))
         return posixtime
 
+class Group(object):
+    def __init__(self):
+        self.groupname = ""
+        self.usernames = []
 
 class IRodsConnector(object):
     def __init__(self):
