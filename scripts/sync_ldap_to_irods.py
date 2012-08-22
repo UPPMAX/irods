@@ -22,8 +22,14 @@ class SyncRunner(object):
         users = self.filter_usernames(users)
         users = self.filter_expirytimes(users)
         self.users = users
+        
+        irods = IRodsConnector()
+        
         for user in self.users:
-            print user.username, user.expirytime
+            if not irods.user_exists(user):
+                print "User %s missing, so creating now ..." % username
+                irods.create_user(user, usertype="rodsuser")
+                
         # self.delete_expired_users()
         # self.connect_users_and_groups()
     
@@ -100,6 +106,10 @@ class IRodsConnector(object):
         self.icommands_path = "/opt/irods/iRODS/clients/icommands/bin"
         # Some paths to binaries:
 
+    def create_user(self, username, usertype="rodsuser"):
+        cmd = "%s mkuser %s %s" % (self.get_iadmin_p(), username, usertype)
+        exec_cmd(cmd)
+
     def user_exists(self, username):
         cmd = self.get_iadmin_p() + " lu " + username
         output = exec_cmd(cmd)
@@ -110,6 +120,8 @@ class IRodsConnector(object):
         
     def get_iadmin_p(self):
         return os.path.join(self.icommands_path, "iadmin")
+    
+
     
 # Tests
 
