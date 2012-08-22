@@ -26,9 +26,9 @@ class SyncRunner(object):
         irods = IRodsConnector()
         
         for user in self.users:
-            if not irods.user_exists(user):
-                print "User %s missing, so creating now ..." % username
-                irods.create_user(user, usertype="rodsuser")
+            if not irods.user_exists(user.username):
+                print "User %s missing, so creating now ..." % user.username
+                irods.create_user(user.username, usertype="rodsuser")
                 
         # self.delete_expired_users()
         # self.connect_users_and_groups()
@@ -113,6 +113,7 @@ class IRodsConnector(object):
     def user_exists(self, username):
         cmd = self.get_iadmin_p() + " lu " + username
         output = exec_cmd(cmd)
+        output = str.strip(output)
         if output == "No rows found":
             return False
         else:
@@ -122,7 +123,6 @@ class IRodsConnector(object):
         return os.path.join(self.icommands_path, "iadmin")
     
 
-    
 # Tests
 
 class TestSyncRunner(object):
@@ -161,10 +161,12 @@ class TestSyncRunner(object):
 def exec_cmd(command):
     output = ""        
     try:
-        p = sp.Popen(command, stdout=sp.PIPE, shell=True)
+        print("Now executing: " + command)
+        commandstr = command.split(" ")
+        p = sp.Popen(commandstr, stdout=sp.PIPE)
         output = p.stdout.read()
     except Exception:
-        sys.stderr.write("ERROR: Could not execute command: " + command)
+        sys.stderr.write("ERROR: Could not execute command: ")
         raise
     return output
 
