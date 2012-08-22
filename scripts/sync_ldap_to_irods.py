@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 from datetime import *
-import sys, re 
+import sys, re, os 
 import subprocess as sp
 from nose.tools import assert_equal
 from nose.tools import assert_not_equal
@@ -66,16 +66,7 @@ class SyncRunner(object):
         ldapcmd = "ldapsearch -x -LLL '(uid=*)'"
         for infotype in infotypes:
             ldapcmd += " %s" % infotype
-        output = self.exec_cmd(ldapcmd)
-        return output
-
-    def exec_cmd(self, command):
-        output = ""
-        try:
-            output = sp.Popen(command.split(" "), stdout=sp.PIPE)
-        except Exception:
-            sys.stderr.write("ERROR: Could not execute command: " + command)
-            raise
+        output = exec_cmd(ldapcmd)
         return output
 
     def get_match(self, pattern, group, userpart):
@@ -123,11 +114,16 @@ class User(object):
         posixtime = int(now.strftime("%s"))
         return posixtime
 
+
+class IRodsConnector(object):
+    def __init__(self):
+        self.icommands_path = "/opt/irods/iRODS/clients/icommands/bin"
+        # Some paths to binaries:
+        self.iadmin_p = os.path.join(self.icommands_path, "iadmin")
+
+    def user_exists(self, username):
+        cmd = self.iadmin_p + " lu " + username
         
-    
-if __name__ == "__main__":
-    syncrunner = SyncRunner()
-    syncrunner.run()
     
 # Tests
 
@@ -158,6 +154,23 @@ class TestSyncRunner(object):
         for user in self.users:
             assert_not_equal(self.expired_user.username, user.username)
             
-    def test_blackbox(self):
-        self.syncrunner.run()
-            
+    #def test_blackbox(self):
+    #    self.syncrunner.run()
+
+
+# Some global methods
+
+def exec_cmd(command):
+    output = ""        
+    try:
+        output = sp.Popen(command.split(" "), stdout=sp.PIPE)
+    except Exception:
+        sys.stderr.write("ERROR: Could not execute command: " + command)
+        raise
+    return output
+
+# Run main
+
+if __name__ == "__main__":
+    syncrunner = SyncRunner()
+    syncrunner.run()
