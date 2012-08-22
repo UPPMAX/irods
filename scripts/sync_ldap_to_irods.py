@@ -75,28 +75,6 @@ class SyncRunner(object):
         match = m.group(group)
         return match
 
-#    def get_users_from_ldap(self):
-#        #cmd = 
-#        # Get output
-#        "ldapsearch -x -LLL '(uid=*)' shadowExpire uid" +
-#        # Remove lines containing "dn:"
-#        "grep -v dn:|" +
-#        # Remove labels "blabla:"
-#        "sed -r 's/^.*://g'|" +
-#        # Replace newlines with tabs 
-#        "tr "\n" "\t"|\" + 
-#        # Replace double tabs with newlines
-#        "sed 's/\t\t/\n/g'|" +
-#        # Delete spaces 
-#        "tr -d " "|" + 
-#        # Remove grid-users
-#        "grep -v -P \"\tgrid\"|\" +
-#        # Convert from posix time in days to posix time in seconds
-#        # and compare to current time.
-#        "awk '$1*3600*24 >= '$now' { print $2 }'|" +
-#        # Delete empty rows
-#        "sed '/^$/d'"
-    
 class User(object):
     def __init__(self):
         self.username = None
@@ -119,11 +97,17 @@ class IRodsConnector(object):
     def __init__(self):
         self.icommands_path = "/opt/irods/iRODS/clients/icommands/bin"
         # Some paths to binaries:
-        self.iadmin_p = os.path.join(self.icommands_path, "iadmin")
 
     def user_exists(self, username):
-        cmd = self.iadmin_p + " lu " + username
+        cmd = self.get_iadmin_p() + " lu " + username
+        output = exec_cmd(cmd)
+        if output == "No rows found":
+            return False
+        else:
+            return True
         
+    def get_iadmin_p(self):
+        return os.path.join(self.icommands_path, "iadmin")
     
 # Tests
 
@@ -163,7 +147,8 @@ class TestSyncRunner(object):
 def exec_cmd(command):
     output = ""        
     try:
-        output = sp.Popen(command.split(" "), stdout=sp.PIPE)
+        p = sp.Popen(command.split(" "), stdout=sp.PIPE)
+        output = p.stdout.read()
     except Exception:
         sys.stderr.write("ERROR: Could not execute command: " + command)
         raise
