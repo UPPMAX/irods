@@ -17,24 +17,61 @@ class SyncRunner(object):
         '''
         The main method of the script
         '''
+        
+        # Parse LDAP data to user objects
         ldapdata = self.get_userinfo_from_ldap(self.infotypes)
         users = self.parse_ldap_data_to_users(ldapdata)
         users = self.filter_usernames(users)
-        users = self.filter_expirytimes(users)
+        users = self.filter_expired_users(users)
         self.users = users
         
+        # Get an iRODS connector to talk to iRODS
         irods = IRodsConnector()
         
+        # Create users
         for user in self.users:
             if not irods.user_exists(user.username):
                 print "User %s missing, so creating now ..." % user.username
                 irods.create_user(user.username, usertype="rodsuser")
                 
-        # self.delete_expired_users()
-        # self.connect_users_and_groups()
+        # Connect users and groups
+        
+        #connect_users_and_groups() {
+        #  for group in $(getent group|grep -P "^(a|b)20"|cut -f1 -d:); do
+        #    if [[ "" == `iadmin lg|grep $group` ]]; then
+        #      echo "Group $group missing, so creating now ...";
+        #      iadmin mkgroup $group;
+        #    fi
+        #
+        #    # Create the proj folder, if missing
+        #    projfolder="/ssUppnexZone/proj/$group";
+        #    if [[ $(ils $projfolder 2>&1) == ERROR* ]]; then
+        #      echo "Creating folder for group $group ...";
+        #      # Create folder
+        #      imkdir $projfolder;
+        #      # Make the group to own the project folder
+        #      ichmod own $group $projfolder;
+        #      # Prevent access for "anyone"
+        #      ichmod null public $projfolder;
+        #    fi
+        #     for username in $(getent group|grep $group|tr ":" "\n"|tail -n +4|tr "," "\n"); do
+        #      if [[ "" == `iadmin lg $group|grep $username` ]]; then
+        #        if [[ -n `iadmin lu|grep -P "^$username#"` ]]; then
+        #          echo "Valid user $username missing from $group, so adding now ...";
+        #          iadmin atg $group $username;
+        #        fi
+        #      fi
+        #    done;
+        #  done;
+        #}
+
+        
     
 
     def parse_ldap_data_to_users(self, ldapdata):
+        '''
+        Parse the output of the ldapsearch command to user objects
+        ''' 
         users = []
         for userpart in ldapdata.split("\n\n"):
             try: 
@@ -63,7 +100,7 @@ class SyncRunner(object):
                 filtered_users.append(user)
         return filtered_users     
 
-    def filter_expirytimes(self, users):
+    def filter_expired_users(self, users):
         filtered_users = []
         for user in users:
              if user.expirytime > user.get_posixtime():
@@ -149,7 +186,7 @@ class TestSyncRunner(object):
         expired_time = self.expired_user.get_posixtime() - 3600
         self.expired_user.expirytime = expired_time 
         self.users = self.syncrunner.filter_usernames(self.users)
-        self.users = self.syncrunner.filter_expirytimes(self.users)
+        self.users = self.syncrunner.filter_expired_users(self.users)
         self.delete_all_users()
 
     @classmethod        
