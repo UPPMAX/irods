@@ -33,12 +33,21 @@ class SyncRunner(object):
         # Create users
         for user in self.users:
             if not irods.user_exists(user.username):
-                print "User %s missing, so creating now ..." % user.username
+                sys.stderr.write("User %s missing, so creating now ...\n" % user.username)
                 irods.create_user(user.username, usertype="rodsuser")
                 
+        # Get all groups
+        groups = self.get_groups()
+
+        # Create groups
+        for group in groups:
+            if not irods.group_exists(group.groupname):
+                sys.stderr.write("Group %s missing, so creating now ...\n" % group.groupname)
+                irods.create_group(group.groupname)
+
         # Connect users and groups
         
-        groups = self.get_groups()
+                
         #for group in groups:
         #    print "Group: " + group.groupname
             
@@ -168,14 +177,6 @@ class IRodsConnector(object):
         self.icommands_path = "/opt/irods/iRODS/clients/icommands/bin"
         # Some paths to binaries:
 
-    def create_user(self, username, usertype="rodsuser"):
-        cmd = "%s mkuser %s %s" % (self.get_iadmin_p(), username, usertype)
-        exec_cmd(cmd)
-        
-    def delete_user(self, username):
-        cmd = "%s rmuser %s" % (self.get_iadmin_p(), username)
-        exec_cmd(cmd)
-
     def user_exists(self, username):
         cmd = self.get_iadmin_p() + " lu " + username
         output = exec_cmd(cmd)
@@ -184,6 +185,14 @@ class IRodsConnector(object):
             return False
         else:
             return True
+
+    def create_user(self, username, usertype="rodsuser"):
+        cmd = "%s mkuser %s %s" % (self.get_iadmin_p(), username, usertype)
+        exec_cmd(cmd)
+        
+    def delete_user(self, username):
+        cmd = "%s rmuser %s" % (self.get_iadmin_p(), username)
+        exec_cmd(cmd)
         
     def list_users_in_zone(self, zone):
         cmd = self.get_iadmin_p() + " luz " + zone
@@ -191,6 +200,24 @@ class IRodsConnector(object):
         users = str.strip(output).split("\n")
         return users
         
+    def group_exists(self, groupname):
+        cmd = self.get_iadmin_p() + " lg"
+        groupdata = exec_cmd(cmd)
+        if groupname in groupdata: 
+            return True
+        else:
+            return False
+        
+    def create_group(self, groupname):
+        cmd = self.get_iadmin_p() + " mkgroup " + groupname
+        exec_cmd(cmd)
+        
+    def delete_group(self, groupname):
+        if self.group_exists(groupname):
+            cmd = self.get_iadmin_p() + " rmgroup " + groupname
+            exec_cmd(cmd)
+        else:
+            sys.stderr.write("Group does not existing, so can not delete: %s\n" % groupname)
         
     def get_iadmin_p(self):
         return os.path.join(self.icommands_path, "iadmin")
@@ -213,10 +240,12 @@ class TestSyncRunner(object):
         self.users = self.syncrunner.filter_usernames(self.users)
         self.users = self.syncrunner.filter_expired_users(self.users)
         self.delete_all_users()
+        self.delete_all_groups()
 
     @classmethod        
     def teardown_class(self):
         self.delete_all_users()
+        self.delete_all_groups()
 
     def test_expirydate(self):
        for user in self.users:
@@ -241,6 +270,16 @@ class TestSyncRunner(object):
                 sys.stderr.write("Now deleting user " + user + "...\n")
                 irods.delete_user(user)
 
+    @classmethod    
+    def delete_all_groups(self):
+        irods = IRodsConnector()
+        for group in self.syncrunner.get_groups():
+            if not "public" in group.groupname and not "rodsadmin" in group.groupname:
+                sys.stderr.write("Now deleting group " + group.groupname + "...\n")
+                try:
+                    irods.delete_group(group.groupname)
+                except:
+                    sys.stderr.write("Could not delete group %s\n" % group.groupname)
 
 
 # Some global methods
