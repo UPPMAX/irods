@@ -53,12 +53,16 @@ class SyncRunner(object):
                     irods.add_user_to_group(username, group.groupname)
                     
         # Create project folders for groups
-        irods.create_folder_with_owner(projfolder, "public")
+        projfolder = "/ssUppnexZone/proj"
+        if not irods.folder_exists(projfolder):
+            irods.create_folder(projfolder)
         for group in groups:
-            projfolder="/ssUppnexZone/proj/" + group.groupname
-            if not irods.folder_exists(projfolder):
-                irods.create_folder_with_owner(projfolder, group.groupname)
-                
+            groupfolder = os.path.join(projfolder, group.groupname)
+            if not irods.folder_exists(groupfolder):
+                irods.create_folder(groupfolder)
+                irods.make_owner_of_folder(group.groupname, groupfolder)
+                irods.remove_access_to_folder("public", groupfolder)
+
         #for group in groups:
         #    print "Group: " + group.groupname
             
@@ -91,8 +95,6 @@ class SyncRunner(object):
         #  done;
         #}
 
-        
-    
 
     def parse_ldap_data_to_users(self, ldapdata):
         '''
@@ -238,9 +240,21 @@ class IRodsConnector(object):
     def folder_exists(self, folder):
         cmd = self.get_ils_p() + " " + folder
         stdout,stderr = exec_cmd(cmd, get_stderr=True)
+        if "ERROR" in stderr:
+            return False
+        else:
+            return True
         
-    def create_folder_with_owner(self, folder, owner):
-        cmd = "%s mkdir %s %s" % (self.get_iadmin_p(), folder, owner)
+    def create_folder(self, folder):
+        cmd = self.get_imkdir_p() + " " + folder
+        exec_cmd(cmd)
+        
+    def make_owner_of_folder(self, owner, folder):
+        cmd = "%s own %s %s" % (self.get_ichmod_p(), owner, folder)
+        exec_cmd(cmd)
+        
+    def remove_access_to_folder(self, userorgroup, folder):
+        cmd = "%s null %s %s" % (self.get_ichmod_p(), userorgroup, folder)
         exec_cmd(cmd)
         
     def get_iadmin_p(self):
@@ -248,6 +262,12 @@ class IRodsConnector(object):
     
     def get_ils_p(self):
         return os.path.join(self.icommands_path, "ils")
+    
+    def get_imkdir_p(self):
+        return os.path.join(self.icommands_path, "imkdir")
+    
+    def get_ichmod_p(self):
+        return os.path.join(self.icommands_path, "ichmod")
     
     
 # Tests
