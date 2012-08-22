@@ -22,6 +22,8 @@ class SyncRunner(object):
         users = self.filter_usernames(users)
         users = self.filter_expirytimes(users)
         self.users = users
+        for user in self.users:
+            print user.username, user.expirytime
         # self.delete_expired_users()
         # self.connect_users_and_groups()
     
@@ -138,8 +140,8 @@ class TestSyncRunner(object):
         for user in self.users:
             assert_not_equal(self.expired_user.username, user.username)
             
-    #def test_blackbox(self):
-    #    self.syncrunner.run()
+    def test_blackbox(self):
+        self.syncrunner.run()
 
 
 # Some global methods
