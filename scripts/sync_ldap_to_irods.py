@@ -147,7 +147,7 @@ class TestSyncRunner(object):
 def exec_cmd(command):
     output = ""        
     try:
-        p = sp.Popen(command.split(" "), stdout=sp.PIPE)
+        p = sp.Popen(command, stdout=sp.PIPE, shell=True)
         output = p.stdout.read()
     except Exception:
         sys.stderr.write("ERROR: Could not execute command: " + command)
