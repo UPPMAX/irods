@@ -139,6 +139,11 @@ class TestSyncRunner(object):
         self.expired_user.expirytime = expired_time 
         self.users = self.syncrunner.filter_usernames(self.users)
         self.users = self.syncrunner.filter_expirytimes(self.users)
+        self.delete_all_users()
+
+    @classmethod        
+    def teardown_class(self):
+        self.delete_all_users()
 
     def test_expirydate(self):
        for user in self.users:
@@ -154,6 +159,15 @@ class TestSyncRunner(object):
             
     def test_blackbox(self):
         self.syncrunner.run()
+        
+    @classmethod    
+    def delete_all_users(self):
+        iadmin_p = "/opt/irods/iRODS/clients/icommands/bin/iadmin"
+        for user in str.strip(exec_cmd(iadmin_p + " luz ssUppnexZone")).split("\n"):
+            if not "rods" in user:
+                sys.stderr.write("Now deleting user " + user + "...\n")
+                exec_cmd(iadmin_p + " rmuser " + user)
+
 
 
 # Some global methods
@@ -162,11 +176,11 @@ def exec_cmd(command):
     output = ""        
     try:
         print("Now executing: " + command)
-        commandstr = command.split(" ")
-        p = sp.Popen(commandstr, stdout=sp.PIPE)
+        commandlist = command.split(" ")
+        p = sp.Popen(commandlist, stdout=sp.PIPE)
         output = p.stdout.read()
     except Exception:
-        sys.stderr.write("ERROR: Could not execute command: ")
+        sys.stderr.write("ERROR: Could not execute command: " + command)
         raise
     return output
 
