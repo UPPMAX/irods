@@ -49,8 +49,11 @@ class SyncRunner(object):
 
         # Connect users and groups
         for group in groups:
+            groupusers_in_irods = irods.list_group_users(group.groupname)
             for username in group.usernames:
-                if irods.user_exists(username) and not irods.group_has_user(group.groupname, username):
+                if username in groupusers_in_irods:
+                    print("User %s already connected to group %s" % (username, group.groupname))
+                elif irods.user_exists(username):
                     print("Now adding user %s to group %s ..." % (username,group.groupname))
                     irods.add_user_to_group(username, group.groupname)
                     
@@ -193,6 +196,13 @@ class IRodsConnector(object):
         cmd = self.get_iadmin_p() + " lg"
         groups = exec_cmd(cmd).strip().split("\n")
         return groups
+    
+    def list_group_users(self, group):
+        cmd = self.get_iadmin_p() + " lg " + group
+        users = exec_cmd(cmd).strip().split("\n")
+        for k,v in enumerate(users):
+            users[k] = v.replace("#ssUppnexZone", "")
+        return users
         
     def group_exists(self, groupname):
         return groupname in self.groupnames
