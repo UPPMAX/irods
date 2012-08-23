@@ -63,39 +63,6 @@ class SyncRunner(object):
                 irods.make_owner_of_folder(group.groupname, groupfolder)
                 irods.remove_access_to_folder("public", groupfolder)
 
-        #for group in groups:
-        #    print "Group: " + group.groupname
-            
-        #connect_users_and_groups() {
-        #  for group in $(getent group|grep -P "^(a|b)20"|cut -f1 -d:); do
-        #    if [[ "" == `iadmin lg|grep $group` ]]; then
-        #      echo "Group $group missing, so creating now ...";
-        #      iadmin mkgroup $group;
-        #    fi
-        #
-        #    # Create the proj folder, if missing
-        #    projfolder="/ssUppnexZone/proj/$group";
-        #    if [[ $(ils $projfolder 2>&1) == ERROR* ]]; then
-        #      echo "Creating folder for group $group ...";
-        #      # Create folder
-        #      imkdir $projfolder;
-        #      # Make the group to own the project folder
-        #      ichmod own $group $projfolder;
-        #      # Prevent access for "anyone"
-        #      ichmod null public $projfolder;
-        #    fi
-        #     for username in $(getent group|grep $group|tr ":" "\n"|tail -n +4|tr "," "\n"); do
-        #      if [[ "" == `iadmin lg $group|grep $username` ]]; then
-        #        if [[ -n `iadmin lu|grep -P "^$username#"` ]]; then
-        #          echo "Valid user $username missing from $group, so adding now ...";
-        #          iadmin atg $group $username;
-        #        fi
-        #      fi
-        #    done;
-        #  done;
-        #}
-
-
     def parse_ldap_data_to_users(self, ldapdata):
         '''
         Parse the output of the ldapsearch command to user objects
