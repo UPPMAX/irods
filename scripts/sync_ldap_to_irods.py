@@ -342,8 +342,10 @@ class TestSyncRunner(object):
                     
     @classmethod
     def delete_projfolder(self):
+        folder = "/ssUppnexZone/proj"
         irods = IRodsConnector()
-        irods.delete_folder("/ssUppnexZone/proj", recursive=True)
+        if irods.folder_exists(folder):
+            irods.delete_folder(folder, recursive=True)
 
 
 # Some global methods
