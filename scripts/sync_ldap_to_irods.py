@@ -6,7 +6,8 @@ import subprocess as sp
 from nose.tools import assert_equal
 from nose.tools import assert_not_equal
 
-getent_path = "/home/samuel/wksp/irods/scripts/getent"
+#getent_path = "/home/samuel/wksp/irods/scripts/getent"
+getent_path = "/usr/bin/getent"
 
 class SyncRunner(object):
     def __init__(self):
