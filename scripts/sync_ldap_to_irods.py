@@ -170,6 +170,7 @@ class IRodsConnector(object):
     def __init__(self):
         self.icommands_path = "/opt/irods/iRODS/clients/icommands/bin"
         self.usernames = self.list_users_in_zone("ssUppnexZone")
+        self.groupnames = self.list_groups()
 
     def user_exists(self, username):
         return username in self.usernames
@@ -188,13 +189,13 @@ class IRodsConnector(object):
         users = str.strip(output).split("\n")
         return users
         
-    def group_exists(self, groupname):
+    def list_groups(self):
         cmd = self.get_iadmin_p() + " lg"
-        groupdata = exec_cmd(cmd)
-        if groupname in groupdata: 
-            return True
-        else:
-            return False
+        groups = exec_cmd(cmd).strip().split("\n")
+        return groups
+        
+    def group_exists(self, groupname):
+        return groupname in self.groupnames
         
     def create_group(self, groupname):
         cmd = self.get_iadmin_p() + " mkgroup " + groupname
