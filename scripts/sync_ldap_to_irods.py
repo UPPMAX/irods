@@ -50,6 +50,7 @@ class SyncRunner(object):
         # Connect users and groups
         for group in groups:
             for username in group.usernames:
+                sys.stderr.write("Trying to add user %s to group %s\n" % (username, group.groupname))
                 if irods.user_exists(username) and not irods.group_has_user(group.groupname, username):
                     # sys.stderr.write("Now adding user %s to group %s ...\n" % (username,group.groupname))
                     irods.add_user_to_group(username, group.groupname)
@@ -120,7 +121,10 @@ class SyncRunner(object):
             cols = line.split(":")
             group = Group()
             group.groupname = cols[0]
-            group.usernames.extend(cols[3].split(","))
+            new_usernames = cols[3].split(",")
+            for new_username in new_usernames:
+                if new_username:
+                    group.usernames.append(new_username)
             groups.append(group)
         return groups
 
@@ -129,7 +133,7 @@ class SyncRunner(object):
     def filter_groups(self, groups):
         filtered_groups = []
         for group in groups:
-            if re.match("^(a|b|p|s)[0-9]{6}.*", group.groupname):
+            if re.match("^(a|b|p|s)[0-9]{5}.*", group.groupname):
                 filtered_groups.append(group)
             else:
                 sys.stderr.write("Group does not match pattern, so skipping: %s\n" % group.groupname)
