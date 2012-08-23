@@ -49,7 +49,7 @@ class SyncRunner(object):
         for group in groups:
             for username in group.usernames:
                 if irods.user_exists(username):
-                    sys.stderr.write("Now adding user %s to group %s ...\n" % (username,group.groupname))
+                    # sys.stderr.write("Now adding user %s to group %s ...\n" % (username,group.groupname))
                     irods.add_user_to_group(username, group.groupname)
                     
         # Create project folders for groups
@@ -249,6 +249,13 @@ class IRodsConnector(object):
         cmd = self.get_imkdir_p() + " " + folder
         exec_cmd(cmd)
         
+    def delete_folder(self, folder, recursive=False):
+        if recursive:
+            cmd = self.get_irm_p() + " -rf " + folder
+        else:
+            cmd = self.get_irm_p() + folder
+        exec_cmd(cmd)
+        
     def make_owner_of_folder(self, owner, folder):
         cmd = "%s own %s %s" % (self.get_ichmod_p(), owner, folder)
         exec_cmd(cmd)
@@ -269,6 +276,9 @@ class IRodsConnector(object):
     def get_ichmod_p(self):
         return os.path.join(self.icommands_path, "ichmod")
     
+    def get_irm_p(self):
+        return os.path.join(self.icommands_path, "irm")
+    
     
 # Tests
 
@@ -288,11 +298,13 @@ class TestSyncRunner(object):
         self.users = self.syncrunner.filter_expired_users(self.users)
         self.delete_all_users()
         self.delete_all_groups()
+        self.delete_projfolder()
 
     @classmethod        
     def teardown_class(self):
         self.delete_all_users()
         self.delete_all_groups()
+        self.delete_projfolder()
 
     def test_expirydate(self):
        for user in self.users:
@@ -327,6 +339,11 @@ class TestSyncRunner(object):
                     irods.delete_group(group.groupname)
                 except:
                     sys.stderr.write("Could not delete group %s\n" % group.groupname)
+                    
+    @classmethod
+    def delete_projfolder(self):
+        irods = IRodsConnector()
+        irods.delete_folder("/ssUppnexZone/proj", recursive=True)
 
 
 # Some global methods
