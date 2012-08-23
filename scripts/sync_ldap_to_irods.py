@@ -219,7 +219,7 @@ class IRodsConnector(object):
             return False
             
     def add_user_to_group(self, username, groupname):
-        if not username and not groupname:
+        if username and groupname:
             cmd = self.get_iadmin_p() + " atg %s %s" % (groupname, username)
             exec_cmd(cmd)
         else:
