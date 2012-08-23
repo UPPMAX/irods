@@ -50,9 +50,8 @@ class SyncRunner(object):
         # Connect users and groups
         for group in groups:
             for username in group.usernames:
-                sys.stderr.write("Trying to add user %s to group %s\n" % (username, group.groupname))
                 if irods.user_exists(username) and not irods.group_has_user(group.groupname, username):
-                    # sys.stderr.write("Now adding user %s to group %s ...\n" % (username,group.groupname))
+                    sys.stderr.write("Now adding user %s to group %s ...\n" % (username,group.groupname))
                     irods.add_user_to_group(username, group.groupname)
                     
         # Create project folders for groups
