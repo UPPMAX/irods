@@ -44,7 +44,7 @@ class SyncRunner(object):
         # Create groups
         for group in groups:
             if not irods.group_exists(group.groupname):
-                print("Group %s missing, so creating now ...\n" % group.groupname)
+                print("Creating group %s ...\n" % group.groupname)
                 irods.create_group(group.groupname)
 
         # Connect users and groups
@@ -52,9 +52,10 @@ class SyncRunner(object):
             groupusers_in_irods = irods.list_group_users(group.groupname)
             for username in group.usernames:
                 if username in groupusers_in_irods:
-                    print("User %s already connected to group %s" % (username, group.groupname))
+                    #print("User %s already connected to group %s" % (username, group.groupname))
+                    pass
                 elif irods.user_exists(username):
-                    print("Now adding user %s to group %s ..." % (username,group.groupname))
+                    print("Adding user %s to group %s ..." % (username,group.groupname))
                     irods.add_user_to_group(username, group.groupname)
                     
         # Create project folders for groups
@@ -64,6 +65,7 @@ class SyncRunner(object):
         for group in groups:
             groupfolder = os.path.join(projfolder, group.groupname)
             if not irods.folder_exists(groupfolder):
+                print("Creating folder %s ..." % groupfolder)
                 irods.create_folder(groupfolder)
                 irods.make_owner_of_folder(group.groupname, groupfolder)
                 irods.remove_access_to_folder("public", groupfolder)
@@ -110,7 +112,7 @@ class SyncRunner(object):
     def get_userinfo_from_ldap(self, infotypes):
         ldapcmd = "ldapsearch -x -LLL '(uid=*)'"
         for infotype in infotypes:
-            ldapcmd += " %s" % infotype
+            ldapcmd += " " + infotype
         output = exec_cmd(ldapcmd)
         return output
 
@@ -319,7 +321,7 @@ class TestSyncRunner(object):
         irods = IRodsConnector()
         for user in irods.list_users_in_zone("ssUppnexZone"):
             if not "rods" in user:
-                sys.stderr.write("Now deleting user " + user + "...\n")
+                #sys.stderr.write("Now deleting user " + user + "...\n")
                 irods.delete_user(user)
 
     @classmethod    
@@ -327,7 +329,7 @@ class TestSyncRunner(object):
         irods = IRodsConnector()
         for group in self.syncrunner.get_groups():
             if not "public" in group.groupname and not "rodsadmin" in group.groupname and irods.group_exists(group.groupname):
-                sys.stderr.write("Now deleting group " + group.groupname + "...\n")
+                #sys.stderr.write("Now deleting group " + group.groupname + "...\n")
                 try:
                     irods.delete_group(group.groupname)
                 except:
