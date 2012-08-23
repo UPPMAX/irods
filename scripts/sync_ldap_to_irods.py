@@ -34,7 +34,7 @@ class SyncRunner(object):
         # Create users
         for user in self.users:
             if not irods.user_exists(user.username):
-                sys.stderr.write("User %s missing, so creating now ...\n" % user.username)
+                print("User %s missing, so creating now ...\n" % user.username)
                 irods.create_user(user.username, usertype="rodsuser")
                 
         # Get all groups
@@ -44,14 +44,14 @@ class SyncRunner(object):
         # Create groups
         for group in groups:
             if not irods.group_exists(group.groupname):
-                sys.stderr.write("Group %s missing, so creating now ...\n" % group.groupname)
+                print("Group %s missing, so creating now ...\n" % group.groupname)
                 irods.create_group(group.groupname)
 
         # Connect users and groups
         for group in groups:
             for username in group.usernames:
                 if irods.user_exists(username) and not irods.group_has_user(group.groupname, username):
-                    sys.stderr.write("Now adding user %s to group %s ...\n" % (username,group.groupname))
+                    print("Now adding user %s to group %s ..." % (username,group.groupname))
                     irods.add_user_to_group(username, group.groupname)
                     
         # Create project folders for groups
@@ -135,7 +135,7 @@ class SyncRunner(object):
             if re.match("^(a|b|p|s)[0-9]{5}.*", group.groupname):
                 filtered_groups.append(group)
             else:
-                sys.stderr.write("Group does not match pattern, so skipping: %s\n" % group.groupname)
+                print("Group does not match pattern, so skipping: %s" % group.groupname)
         return filtered_groups
 
     def get_match(self, pattern, group, userpart):
@@ -349,7 +349,7 @@ def exec_cmd(command, get_stderr=False):
             stdout = p.stdout.read()
             stderr = p.stderr.read()
         except Exception:
-            sys.stderr.write("ERROR: Could not execute command: " + command)
+            sys.stderr.write("ERROR: Could not execute command:\n%s\n" % command)
             raise
         return stdout,stderr
     else:
@@ -357,7 +357,7 @@ def exec_cmd(command, get_stderr=False):
             p = sp.Popen(commandlist, stdout=sp.PIPE)
             stdout = p.stdout.read()
         except Exception:
-            sys.stderr.write("ERROR: Could not execute command: " + command)
+            sys.stderr.write("ERROR: Could not execute command:\n%s\n" % command)
             raise
         return stdout
 
