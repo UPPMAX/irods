@@ -39,6 +39,7 @@ class SyncRunner(object):
                 
         # Get all groups
         groups = self.get_groups()
+        groups = self.filter_groups(groups)
 
         # Create groups
         for group in groups:
@@ -124,6 +125,15 @@ class SyncRunner(object):
         return groups
 
         # |grep -P "^(a|b)20"|cut -f1 -d:)"
+        
+    def filter_groups(self, groups):
+        filtered_groups = []
+        for group in groups:
+            if re.match("^(a|b|p|s)[0-9]{6}.*", group.groupname):
+                filtered_groups.append(group)
+            else:
+                sys.stderr.write("Group does not match pattern, so skipping: %s\n" % group.groupname)
+        return filtered_groups
 
     def get_match(self, pattern, group, userpart):
         it = re.finditer(pattern, userpart, re.MULTILINE|re.DOTALL)
