@@ -169,16 +169,10 @@ class Group(object):
 class IRodsConnector(object):
     def __init__(self):
         self.icommands_path = "/opt/irods/iRODS/clients/icommands/bin"
-        # Some paths to binaries:
+        self.usernames = self.list_users_in_zone("ssUppnexZone")
 
     def user_exists(self, username):
-        cmd = self.get_iadmin_p() + " lu " + username
-        output = exec_cmd(cmd)
-        output = str.strip(output)
-        if output == "No rows found":
-            return False
-        else:
-            return True
+        return username in self.usernames
 
     def create_user(self, username, usertype="rodsuser"):
         cmd = "%s mkuser %s %s" % (self.get_iadmin_p(), username, usertype)
