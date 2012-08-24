@@ -85,7 +85,7 @@ acGetUserByDN(*arg,*OUT) { }
 # information on $userNameClient.  But the typical use is to just set it
 # strict or not for all users:
 acAclPolicy { }
-#acAclPolicy {msiAclPolicy("STRICT"); }
+acAclPolicy {msiAclPolicy("STRICT"); }
 # When choosing a "STRICT" ACL policy you should consider setting the 
 # following permissions if you are using the PHP web browser:
 # ichmod -M read public /ZONE_NAME
