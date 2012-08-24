@@ -11,72 +11,103 @@
 # If some of these functions are not implemented for your MSS, just let this function as it is.
 #
  
+echo "univMSSinterface.sh was run ..." >> /opt/irods/univmssout.log
+
 # function for the synchronization of file $1 on local disk resource to file $2 in the MSS
 syncToArch () {
-	# <your command or script to copy from cache to MSS> $1 $2 
-	# e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
-	return
+# <your command or script to copy from cache to MSS> $1 $2
+# e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
+# echo $1,$2 >/opt/irods/debug.txt;
+
+# *** THIS SHOULD NOT BE IMPLEMENTED HERE! ***
+# arccp -R 5 $1 srm://srm.swegrid.se/ops/uppnex_test$2
+        return
 }
 
 # function for staging a file $1 from the MSS to file $2 on disk
 stageToCache () {
-	# <your command to stage from MSS to cache> $1 $2	
-	# e.g: /usr/local/bin/rfcp rfioServerFoo:$1 $2
-	return
+# <your command to stage from MSS to cache> $1 $2
+# e.g: /usr/local/bin/rfcp rfioServerFoo:$1 $2
+if [ -e $2 ];then
+  rm -rf $2;
+fi
+# echo $1,$2 >/opt/irods/debugstage.txt;
+  cmd="arccp -R 5 srm://srm.swegrid.se/snic/uppnex/arch$1 $2"
+  echo "`date +%Y%m%d, %H:%M:%S`, Now running command: $cmd" >> /opt/irods/univmssout.log;
+  `$cmd`;
+  return
 }
 
 # function to create a new directory $1 in the MSS logical name space
 mkdir () {
-	# <your command to make a directory in the MSS> $1
-	# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
-	return
+# <your command to make a directory in the MSS> $1
+# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
+return
 }
 
-# function to modify ACLs $2 (octal) in the MSS logical name space for a given directory $1 
+# function to modify ACLs $2 (octal) in the MSS logical name space for a given directory $1
 chmod () {
-	# <your command to modify ACL> $1 $2
-	# e.g: /usr/local/bin/rfchmod $2 rfioServerFoo:$1
-	return
+# <your command to modify ACL> $1 $2
+# e.g: /usr/local/bin/rfchmod $2 rfioServerFoo:$1
+return
 }
 
 # function to remove a file $1 from the MSS
 rm () {
-	# <your command to remove a file from the MSS> $1
-	# e.g: /usr/local/bin/rfrm rfioServerFoo:$1
-	return
+# <your command to remove a file from the MSS> $1
+# e.g: /usr/local/bin/rfrm rfioServerFoo:$1
+
+# *** THIS SHOULD NOT BE IMPLEMENTED HERE! ***
+#         echo $1,$2 >/opt/irods/debugrm.txt;
+# arcrm -t 30 srm://srm.swegrid.se/ops/uppnex_test$1
+return
 }
 
 # function to rename a file $1 into $2 in the MSS
 mv () {
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
-       return
+       return -1
 }
 
 # function to do a stat on a file $1 stored in the MSS
 stat () {
-	# <your command to retrieve stats on the file> $1
-	# e.g: output=`/usr/local/bin/rfstat rfioServerFoo:$1`
-	error=$?
-	if [ $error != 0 ] # if file does not exist or information not available
-	then
-		return $error
-	fi
-	# parse the output.
-	# Parameters to retrieve: device ID of device containing file("device"), 
-	#                         file serial number ("inode"), ACL mode in octal ("mode"),
-	#                         number of hard links to the file ("nlink"),
-	#                         user id of file ("uid"), group id of file ("gid"),
-	#                         device id ("devid"), file size ("size"), last access time ("atime"),
-	#                         last modification time ("mtime"), last change time ("ctime"),
-	#                         block size in bytes ("blksize"), number of blocks ("blkcnt")
-	# e.g: device=`echo $output | awk '{print $3}'`	
-	# Note 1: if some of these parameters are not relevant, set them to 0.
-	# Note 2: the time should have this format: YYYY-MM-dd-hh.mm.ss with: 
-	#                                           YYYY = 1900 to 2xxxx, MM = 1 to 12, dd = 1 to 31,
-	#                                           hh = 0 to 24, mm = 0 to 59, ss = 0 to 59
-	echo "$device:$inode:$mode:$nlink:$uid:$gid:$devid:$size:$blksize:$blkcnt:$atime:$mtime:$ctime"
-	return
+# echo "MSS univ driver, fcn stat was run" >> /opt/irods/univmssout.log;
+# <your command to retrieve stats on the file> $1
+        output=`arcls -l srm://srm.swegrid.se/snic/uppnex/arch$1 | grep $1`
+echo $output >> /opt/irods/univmssout.log;
+error=$?
+if [ $error != 0 ] # if file does not exist or information not available
+then
+return $error
+fi
+# parse the output.
+# Parameters to retrieve: device ID of device containing file("device"),
+# file serial number ("inode"), ACL mode in octal ("mode"),
+# number of hard links to the file ("nlink"),
+# user id of file ("uid"), group id of file ("gid"),
+# device id ("devid"), file size ("size"), last access time ("atime"),
+# last modification time ("mtime"), last change time ("ctime"),
+# block size in bytes ("blksize"), number of blocks ("blkcnt")
+device=0
+inode=0
+mode=0
+nlink=0
+uid=0
+gid=0
+devid=0
+blksize=0
+blkcnt=0
+atime=0
+mtime=0
+ctime=`echo $output | awk '{print $4"-"$5}' |sed 's/:/./g'`
+size=`echo $output | awk '{print $3}'`
+# Note 1: if some of these parameters are not relevant, set them to 0.
+# Note 2: the time should have this format: YYYY-MM-dd-hh.mm.ss with:
+# YYYY = 1900 to 2xxxx, MM = 1 to 12, dd = 1 to 31,
+# hh = 0 to 24, mm = 0 to 59, ss = 0 to 59
+echo "$device:$inode:$mode:$nlink:$uid:$gid:$devid:$size:$blksize:$blkcnt:$atime:$mtime:$ctime"
+return
 }
 
 #############################################
@@ -84,13 +115,13 @@ stat () {
 #############################################
 
 case "$1" in
-	syncToArch ) $1 $2 $3 ;;
-	stageToCache ) $1 $2 $3 ;;
-	mkdir ) $1 $2 ;;
-	chmod ) $1 $2 $3 ;;
-	rm ) $1 $2 ;;
-	mv ) $1 $2 $3 ;;
-	stat ) $1 $2 ;;
+syncToArch ) $1 $2 $3 ;;
+stageToCache ) $1 $2 $3 ;;
+mkdir ) $1 $2 ;;
+chmod ) $1 $2 $3 ;;
+rm ) $1 $2 ;;
+mv ) $1 $2 $3 ;;
+stat ) $1 $2 ;;
 esac
 
 exit $?
