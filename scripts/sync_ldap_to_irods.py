@@ -139,8 +139,9 @@ class SyncRunner(object):
         for group in groups:
             if re.match("^(a|b|p|s)[0-9]{5}.*", group.groupname):
                 filtered_groups.append(group)
-            else:
-                print("Group does not match pattern, so skipping: %s" % group.groupname)
+            #else:
+            #    print("Group does not match pattern, so skipping: %s" % group.groupname)
+            #    pass
         return filtered_groups
 
     def get_match(self, pattern, group, userpart):
