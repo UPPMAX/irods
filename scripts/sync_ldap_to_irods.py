@@ -109,7 +109,7 @@ class SyncRunner(object):
         return filtered_users
 
     def get_userinfo_from_ldap(self, infotypes):
-        ldapcmd = "ldapsearch -x -LLL '(uid=*)'"
+        ldapcmd = "ldapsearch -x -LLL (uid=*)"
         for infotype in infotypes:
             ldapcmd += " " + infotype
         output = exec_cmd(ldapcmd)
