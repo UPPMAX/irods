@@ -33,7 +33,7 @@ class SyncRunner(object):
         # Create users
         for user in self.users:
             if not irods.user_exists(user.username):
-                print("User %s missing, so creating now ...\n" % user.username)
+                print("User %s missing, so creating now ..." % user.username)
                 irods.create_user(user.username, usertype="rodsuser")
                 
         # Get all groups
@@ -43,7 +43,7 @@ class SyncRunner(object):
         # Create groups
         for group in groups:
             if not irods.group_exists(group.groupname):
-                print("Creating group %s ...\n" % group.groupname)
+                print("Creating group %s ..." % group.groupname)
                 irods.create_group(group.groupname)
 
         # Connect users and groups
