@@ -68,6 +68,7 @@ class SyncRunner(object):
                 irods.create_folder(groupfolder)
                 irods.make_owner_of_folder(group.groupname, groupfolder)
                 irods.remove_access_to_folder("public", groupfolder)
+                irods.set_inherit_on_folder(groupfolder)
 
     def parse_ldap_data_to_users(self, ldapdata):
         '''
@@ -252,6 +253,10 @@ class IRodsConnector(object):
         
     def remove_access_to_folder(self, userorgroup, folder):
         cmd = "%s null %s %s" % (self.get_ichmod_p(), userorgroup, folder)
+        exec_cmd(cmd)
+        
+    def set_inherit_on_folder(self, folder):
+        cmd = "%s inherit" % (self.get_ichmod_p(), folder)
         exec_cmd(cmd)
         
     def get_iadmin_p(self):
