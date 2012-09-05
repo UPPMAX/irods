@@ -256,7 +256,7 @@ class IRodsConnector(object):
         exec_cmd(cmd)
         
     def set_inherit_on_folder(self, folder):
-        cmd = "%s inherit" % (self.get_ichmod_p(), folder)
+        cmd = "%s inherit %s" % (self.get_ichmod_p(), folder)
         exec_cmd(cmd)
         
     def get_iadmin_p(self):
