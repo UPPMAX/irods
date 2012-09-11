@@ -20,18 +20,18 @@ syncToArch () {
 	# Hardcode to minimize operations. 
         VAULT="\/data\/rescs\/swestoreArchCacheResc"
 	# Hack to translate system path to irods filespace path	
-	iPATH=`echo $1 | sed 's/'$VAULT'/\/ssUppnexZone/'`       
-        md5=`isysmeta ls -l $iPATH |grep data_checksum |awk '{print $3}' |head -1`
+	iPATH=`echo "$1" | sed 's/'$VAULT'/\/ssUppnexZone/'`       
+        md5=`isysmeta ls -l "$iPATH" |grep data_checksum |awk '{print $3}' |head -1`
         if [ -n "$md5" ]
         then
-	  arccp -R 5 $1 srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5
+	  arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
 	else
 	  # md5sum do not exist in iCAT calculate with ichksum
 	  # Iadmin cant chksum other users file
 	  #  md5=`ichksum -K $iPATH | awk '{print $2}'|head -1`
 	  #forced to calculate md5sum on file..
-	  md5=`md5sum $1|awk '{print $1}'` 
-  	  arccp -R 5 $1 srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5
+	  md5=`md5sum "$1"|awk '{print $1}'` 
+  	  arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
 	fi      
         return
 }
@@ -40,12 +40,12 @@ syncToArch () {
 stageToCache () {
 	# <your command to stage from MSS to cache> $1 $2	
 	# e.g: /usr/local/bin/rfcp rfioServerFoo:$1 $2
-	if [ -e $2 ]; 
+	if [ -e "$2" ]; 
 		then 
-		rm -rf $2; 
+		rm -rf "$2"; 
 		fi
 #	echo $1,$2 >/opt/irods/debugstage.txt;
-	arccp -R 5 srm://srm.swegrid.se/snic/uppnex$1 $2
+	arccp -R 5 "srm://srm.swegrid.se/snic/uppnex$1" "$2"
         return
 }
 
@@ -54,7 +54,7 @@ mkdir () {
 	# <your command to make a directory in the MSS> $1
 	# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
 	#/opt/d-cache/srm/bin/srmmkdir srm://srm.swegrid.se/snic/uppnex$1
-        arcmkdir srm://srm.swegrid.se/snic/uppnex$1
+        arcmkdir "srm://srm.swegrid.se/snic/uppnex$1"
 	return
 }
 
@@ -71,7 +71,7 @@ rm () {
 	# <your command to remove a file from the MSS> $1
 	# e.g: /usr/local/bin/rfrm rfioServerFoo:$1
 #        echo $1,$2 >/opt/irods/debugrm.txt;
-	arcrm -t 30 srm://srm.swegrid.se/snic/uppnex$1
+	arcrm -t 30 "srm://srm.swegrid.se/snic/uppnex$1"
 	return
 }
 
@@ -79,7 +79,7 @@ rm () {
 mv () {
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
-       /opt/d-cache/srm/bin/srmmv srm://srm.swegrid.se/snic/uppnex$1 srm://srm.swegrid.se/snic/uppnex$2
+       /opt/d-cache/srm/bin/srmmv "srm://srm.swegrid.se/snic/uppnex$1" "srm://srm.swegrid.se/snic/uppnex$2"
        return
 }
 
@@ -112,12 +112,12 @@ stat () {
 	blkcnt=0
 	atime=0
 	mtime=0
-	ctime=`echo $output |grep $1 | awk '{print $11"-"$12}' |sed 's/:/./g'`	
+	ctime=`echo "$output" |grep "$1" | awk '{print $11"-"$12}' |sed 's/:/./g'`	
 	if [ -z "$ctime" ]
         then
           ctime=0
 	fi
-	size=`echo $output |grep $1 | awk '{print $10}'`	
+	size=`echo "$output" |grep "$1" | awk '{print $10}'`	
 	if [ -z "$size" ]
         then
           size=0
@@ -135,13 +135,13 @@ stat () {
 #############################################
 
 case "$1" in
-	syncToArch ) $1 $2 $3 ;;
-	stageToCache ) $1 $2 $3 ;;
-	mkdir ) $1 $2 ;;
-	chmod ) $1 $2 $3 ;;
-	rm ) $1 $2 ;;
-	mv ) $1 $2 $3 ;;
-	stat ) $1 $2 ;;
+	syncToArch ) "$1" "$2" "$3" ;;
+	stageToCache ) "$1" "$2" "$3" ;;
+	mkdir ) "$1" "$2" ;;
+	chmod ) "$1" "$2" "$3" ;;
+	rm ) "$1" "$2" ;;
+	mv ) "$1" "$2" "$3" ;;
+	stat ) "$1" "$2" ;;
 esac
 
 exit $?
