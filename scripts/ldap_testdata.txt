@@ -1,0 +1,48 @@
+dn: uid=fysnon,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 18396
+uid: fysnon
+
+dn: uid=kuvj,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 17257
+uid: kuvj
+
+dn: uid=juoqu,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 16558
+uid: juoqu
+
+dn: uid=umsukok,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 17257
+uid: gridumsukok
+
+dn: uid=motkk,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 17257
+uid: motkk
+
+dn: uid=ksuktyo,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 15800
+uid: ksuktyo
+
+dn: uid=pysku,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 15800
+uid: pysku
+
+dn: uid=mucokk,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 16041
+uid: mucokk
+
+dn: uid=munw,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 15676
+uid: munw
+
+dn: uid=ysuko,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 15766
+uid: ysuko
+
+dn: uid=wumom,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 15676
+uid: wumom
+
+dn: uid=tosyk,ou=People,dc=uppmax,dc=uu,dc=se
+shadowExpire: 13461
+uid: tosyk
+

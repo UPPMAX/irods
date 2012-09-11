@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cmd="iadmin $@"
+now=`date "+%Y-%m-%d %H:%M:%S"`
+user=`whoami`
+
+echo "$now $user $cmd"|grep -v "iadmin l" | grep -v "iadmin help" >> /home/irods/iadmin_execs.log
+#echo "Trying now to execute: $cmd"
+$cmd

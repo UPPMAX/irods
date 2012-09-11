@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# Script to syncronize user and groups from LDAP to iRODS
+# Author: Samuel Lampa
+#
+# CHANGELOG
+#
+# 2012-05-13: <add info here>
+#
+
+now=$(date +%s);
+if [[ ! -n `env|grep iRODS` ]];then 
+  export PATH=/opt/irods/iRODS/clients/icommands/bin:$PATH;
+fi
+
+# Add unexpired, unexisting users
+
+add_users() {
+  for username in $(ldapsearch -x -LLL '(uid=*)' shadowExpire uid|grep -v dn:|sed -r "s/^.*://g"|tr "\n" "\t"|sed 's/\t\t/\n/g'|tr -d " "|grep -v -P "\tgrid"|awk '$1*3600*24 >= '$now' { print $2 }'|sed '/^$/d');
+  do
+    if [[ $(iadmin lu $username) == "No rows found" ]]; 
+    then
+      echo "User $username not found, so creating ...";
+      # sleep 0.25
+      iadmin mkuser $username rodsuser
+      # Displaying the groups that a user belongs to:
+  fi
+done;
+}
+
+
+# Delete expired users
+delete_expired_users() {
+  for username in $(ldapsearch -x -LLL '(uid=*)' shadowExpire uid|grep -v dn:|sed -r "s/^.*://g"|tr "\n" "\t"|sed 's/\t\t/\n/g'|tr -d " "|grep -v -P "\tgrid"|awk '$1*3600*24 < '$now' { print $2 }'|sed '/^$/d');
+  do
+    if [[ ! $(iadmin lu $username) == "No rows found" ]];
+    then
+      echo "User $username exists in irods db, but has expired, so deleting ...";
+      # sleep 0.25
+      iadmin deluser $username
+    fi
+  done;
+}
+
+# cmd_getallgroup = 'getent group|grep -P "[^\w]samuel[^\w]"|cut -f 1 -d\:';
+
+connect_users_and_groups() {
+  for group in $(getent group|grep -P "^(a|b)20"|cut -f1 -d:); do
+    if [[ "" == `iadmin lg|grep $group` ]]; then
+      echo "Group $group missing, so creating now ...";
+      iadmin mkgroup $group;
+    fi
+    
+    # Create the proj folder, if missing
+    projfolder="/ssUppnexZone/proj/$group";
+    if [[ $(ils $projfolder 2>&1) == ERROR* ]]; then
+      echo "Creating folder for group $group ...";
+      # Create folder
+      imkdir $projfolder;
+      # Make the group to own the project folder
+      ichmod own $group $projfolder;
+      # Prevent access for "anyone"
+      ichmod null public $projfolder;
+    fi
+     for username in $(getent group|grep $group|tr ":" "\n"|tail -n +4|tr "," "\n"); do
+      if [[ "" == `iadmin lg $group|grep $username` ]]; then
+        if [[ -n `iadmin lu|grep -P "^$username#"` ]]; then
+          echo "Valid user $username missing from $group, so adding now ..."; 
+          iadmin atg $group $username;
+        fi
+      fi
+    done;
+  done;
+}
+
+case $1 in
+  add_users) $1;;
+  delete_expired_users) $1;;
+  connect_users_and_groups) $1;;
+  *) echo "Usage:"
+     echo "sh sync_ldap_to_irods add_users";
+     echo "sh sync_ldap_to_irods delete_expired_users";
+     echo "sh sync_ldap_to_irods connect_users_and_groups";
+  ;;
+esac
+

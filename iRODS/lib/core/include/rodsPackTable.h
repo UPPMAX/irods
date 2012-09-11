@@ -12,6 +12,9 @@
 #include "rodsGenQuery.h"
 #include "reGlobalsExtern.h"
 #include "apiHeaderAll.h"
+#ifdef OOI_CI
+#include "ooiCi.h"
+#endif
 
 #define UNKNOWN_SIZE	-1
 
@@ -64,6 +67,7 @@ packInstructArray_t RodsPackTable[] = {
 	{"CHAR_PI", CHAR_PI},
 	{"DOUBLE_PI", DOUBLE_PI},
 	{"FLOAT_PI", INT_PI},		/* pack as if it is INT_PI */
+	{"BOOL_PI", INT_PI},		/* pack as if it is INT_PI */
 	{"BUF_LEN_PI", BUF_LEN_PI},
 	{"MsgHeader_PI", MsgHeader_PI},
 	{"StartupPack_PI", StartupPack_PI},
@@ -130,6 +134,11 @@ packInstructArray_t RodsPackTable[] = {
         {"MsrvcStruct_PI", MsrvcStruct_PI},
         {"DataSeg_PI", DataSeg_PI},
         {"FileRestartInfo_PI", FileRestartInfo_PI},
+#ifdef OOI_CI
+        {"DictValue_PI", DictValue_PI},
+        {"Dictionary_PI", Dictionary_PI},
+        {"DictArray_PI", DictArray_PI},
+#endif
         {PACK_TABLE_END_PI, (char *) NULL},
 };
 
