@@ -79,7 +79,7 @@ rm () {
 mv () {
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
-       /opt/d-cache/srm/bin/srmmv "srm://srm.swegrid.se/snic/uppnex$1" "srm://srm.swegrid.se/snic/uppnex$2"
+       /usr/local/bin/arcrename "srm://srm.swegrid.se/snic/uppnex$1" "srm://srm.swegrid.se/snic/uppnex$2"
        return
 }
 
