@@ -35,7 +35,7 @@ syncToArch () {
 	  md5=`ichksum -K "$iPATH" | awk '{print $2}'|head -1`
 	  #forced to calculate md5sum on file..
 	  #md5=`md5sum "$1"|awk '{print $1}'` 
-  	  /usr/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
+  	  /usr/local/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
 	fi      
         return
 }
@@ -60,7 +60,7 @@ stageToCache () {
 # function to create a new directory $1 in the MSS logical name space
 mkdir () {
 	date >> /tmp/univmss
-	echo "mkdir $1"   /usr/bin/arcmkdir "srm://srm.swegrid.se/snic/uppnex$1"  >> /tmp/univmss
+	echo "mkdir $1"   /usr/local/bin/arcmkdir "srm://srm.swegrid.se/snic/uppnex$1"  >> /tmp/univmss
 	# <your command to make a directory in the MSS> $1
 	# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
 	#/opt/d-cache/srm/bin/srmmkdir srm://srm.swegrid.se/snic/uppnex$1
