@@ -113,12 +113,12 @@ stat () {
 	blkcnt=0
 	atime=0
 	mtime=0
-	ctime=`echo "$output" |grep "$1" | awk '{print $11"-"$12}' |sed 's/:/./g'`	
+	ctime=`echo "$output" |grep "$1" | awk '{print $4"-"$5}' |sed 's/:/./g'`	
 	if [ -z "$ctime" ]
         then
           ctime=0
 	fi
-	size=`echo "$output" |grep "$1" | awk '{print $10}'`	
+	size=`echo "$output" |grep "$1" | awk '{print $3}'`	
 	if [ -z "$size" ]
         then
           size=0
