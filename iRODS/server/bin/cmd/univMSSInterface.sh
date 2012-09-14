@@ -87,7 +87,7 @@ mv () {
 # function to do a stat on a file $1 stored in the MSS
 stat () {
 	# <your command to retrieve stats on the file> $1
-        output=`/usr/bin/arcls -l srm://srm.swegrid.se/snic/uppnex$1`
+        output=`/usr/bin/arcls -nl srm://srm.swegrid.se/snic/uppnex$1`
 #	echo $output
 	error=$?
 	if [ $error != 0 ] # if file does not exist or information not available
