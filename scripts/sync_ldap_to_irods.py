@@ -63,12 +63,19 @@ class SyncRunner(object):
             irods.create_folder(projfolder)
         for group in groups:
             groupfolder = os.path.join(projfolder, group.groupname)
+            grouptrashfolder = os.path.join("/ssUppnexZone/trash/proj", group.groupname)
             if not irods.folder_exists(groupfolder):
                 print("Creating folder %s ..." % groupfolder)
                 irods.create_folder(groupfolder)
                 irods.make_owner_of_folder(group.groupname, groupfolder)
                 irods.remove_access_to_folder("public", groupfolder)
                 irods.set_inherit_on_folder(groupfolder)
+            if not irods.folder_exists(grouptrashfolder):
+                print("Creating trash folder %s ..." % grouptrashfolder)
+                irods.create_folder(grouptrashfolder)
+                irods.make_owner_of_folder(group.groupname, grouptrashfolder)
+                irods.remove_access_to_folder("public", grouptrashfolder)
+                irods.set_inherit_on_folder(grouptrashfolder)
 
     def parse_ldap_data_to_users(self, ldapdata):
         '''
