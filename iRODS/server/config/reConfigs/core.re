@@ -576,8 +576,8 @@ acPostProcForModifyAccessControl(*RecursiveFlag,*AccessLevel,*UserName,*Zone,*Pa
 # 46) acPreProcForObjRename - This rule set the pre-processing policy for
 # renaming (logically moving) data and collections
 #
-#acPreProcForObjRename(*sourceObject,*destObject) {writeLine("serverLog","TEST:acPreProcForObjRename from *sourceObject to *destObject"); }
-acPreProcForObjRename(*sourceObject,*destObject) { msiOprDisallowed; }
+acPreProcForObjRename(*sourceObject,*destObject) {writeLine("serverLog","TEST:acPreProcForObjRename from *sourceObject to *destObject"); }
+#acPreProcForObjRename(*sourceObject,*destObject) { msiOprDisallowed; }
 #
 # 47) acPostProcForObjRename - This rule set the post-processing policy for
 # renaming (logically moving) data and collections
