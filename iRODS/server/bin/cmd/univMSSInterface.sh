@@ -24,7 +24,7 @@ syncToArch () {
         md5=`isysmeta ls -l "$iPATH" |grep data_checksum |awk '{print $3}' |head -1`
         if [ -n "$md5" ]
         then
-	  /usr/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
+	  /usr/local/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
 	else
 	  # md5sum do not exist in iCAT calculate with ichksum
 	  # Iadmin cant chksum other users file
@@ -46,7 +46,7 @@ stageToCache () {
 		rm -rf "$2"; 
 		fi
 #	echo $1,$2 >/opt/irods/debugstage.txt;
-	/usr/bin/arccp -R 5 "srm://srm.swegrid.se/snic/uppnex$1" "$2"
+	/usr/local/bin/arccp -R 5 "srm://srm.swegrid.se/snic/uppnex$1" "$2"
         return
 }
 
@@ -87,7 +87,7 @@ mv () {
 # function to do a stat on a file $1 stored in the MSS
 stat () {
 	# <your command to retrieve stats on the file> $1
-        output=`/usr/bin/arcls -nl srm://srm.swegrid.se/snic/uppnex$1`
+        output=`/usr/local/bin/arcls -nl srm://srm.swegrid.se/snic/uppnex$1`
 #	echo $output
 	error=$?
 	if [ $error != 0 ] # if file does not exist or information not available
