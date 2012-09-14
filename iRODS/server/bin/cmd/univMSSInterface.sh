@@ -13,6 +13,9 @@
  
 # function for the synchronization of file $1 on local disk resource to file $2 in the MSS
 syncToArch () {
+	date >> /tmp/univmss
+	echo "syncToArch $1 $2" /usr/local/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2" >> /tmp/univmss
+
 	# <your command or script to copy from cache to MSS> $1 $2 
 	# e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
 	# Get vault path for cache resource this is needed to get chksum from ICAT
@@ -39,6 +42,10 @@ syncToArch () {
 
 # function for staging a file $1 from the MSS to file $2 on disk
 stageToCache () {
+        date >> /tmp/univmss
+        echo "stageToCache $1 $2"    /usr/local/bin/arccp -R 5 "srm://srm.swegrid.se/snic/uppnex$1" "$2" >> /tmp/univmss
+
+
 	# <your command to stage from MSS to cache> $1 $2	
 	# e.g: /usr/local/bin/rfcp rfioServerFoo:$1 $2
 	if [ -e "$2" ]; 
@@ -52,10 +59,12 @@ stageToCache () {
 
 # function to create a new directory $1 in the MSS logical name space
 mkdir () {
+	date >> /tmp/univmss
+	echo "mkdir $1"   /usr/bin/arcmkdir "srm://srm.swegrid.se/snic/uppnex$1"  >> /tmp/univmss
 	# <your command to make a directory in the MSS> $1
 	# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
 	#/opt/d-cache/srm/bin/srmmkdir srm://srm.swegrid.se/snic/uppnex$1
-        /usr/bin/arcmkdir "srm://srm.swegrid.se/snic/uppnex$1"
+        /usr/local/bin/arcmkdir "srm://srm.swegrid.se/snic/uppnex$1"
 	return
 }
 
@@ -78,6 +87,9 @@ rm () {
 
 # function to rename a file $1 into $2 in the MSS
 mv () {
+	date >> /tmp/univmss
+        echo "mv $1 $2" /usr/local/bin/arcrename "srm://srm.swegrid.se/snic/uppnex$1" "srm://srm.swegrid.se/snic/uppnex$2"  >> /tmp/univmss
+
        # <your command to rename a file in the MSS> $1 $2
        # e.g: /usr/local/bin/rfrename rfioServerFoo:$1 rfioServerFoo:$2
        /usr/local/bin/arcrename "srm://srm.swegrid.se/snic/uppnex$1" "srm://srm.swegrid.se/snic/uppnex$2"
@@ -86,6 +98,8 @@ mv () {
 
 # function to do a stat on a file $1 stored in the MSS
 stat () {
+	date >> /tmp/univmss
+	echo "stat $1" /usr/local/bin/arcls -nl srm://srm.swegrid.se/snic/uppnex$1 >>/tmp/univmss
 	# <your command to retrieve stats on the file> $1
         output=`/usr/local/bin/arcls -nl srm://srm.swegrid.se/snic/uppnex$1`
 #	echo $output
