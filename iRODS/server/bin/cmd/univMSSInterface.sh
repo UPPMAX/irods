@@ -24,14 +24,15 @@ syncToArch () {
         md5=`isysmeta ls -l "$iPATH" |grep data_checksum |awk '{print $3}' |head -1`
         if [ -n "$md5" ]
         then
-	  arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
+	  /usr/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
 	else
 	  # md5sum do not exist in iCAT calculate with ichksum
 	  # Iadmin cant chksum other users file
-	  #  md5=`ichksum -K $iPATH | awk '{print $2}'|head -1`
+	  #Rods user is now member of all collections and can calculate and register md5sum
+	  md5=`ichksum -K "$iPATH" | awk '{print $2}'|head -1`
 	  #forced to calculate md5sum on file..
-	  md5=`md5sum "$1"|awk '{print $1}'` 
-  	  arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
+	  #md5=`md5sum "$1"|awk '{print $1}'` 
+  	  /usr/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
 	fi      
         return
 }
@@ -45,7 +46,7 @@ stageToCache () {
 		rm -rf "$2"; 
 		fi
 #	echo $1,$2 >/opt/irods/debugstage.txt;
-	arccp -R 5 "srm://srm.swegrid.se/snic/uppnex$1" "$2"
+	/usr/bin/arccp -R 5 "srm://srm.swegrid.se/snic/uppnex$1" "$2"
         return
 }
 
@@ -54,7 +55,7 @@ mkdir () {
 	# <your command to make a directory in the MSS> $1
 	# e.g.: /usr/local/bin/rfmkdir -p rfioServerFoo:$1
 	#/opt/d-cache/srm/bin/srmmkdir srm://srm.swegrid.se/snic/uppnex$1
-        arcmkdir "srm://srm.swegrid.se/snic/uppnex$1"
+        /usr/bin/arcmkdir "srm://srm.swegrid.se/snic/uppnex$1"
 	return
 }
 
@@ -71,7 +72,7 @@ rm () {
 	# <your command to remove a file from the MSS> $1
 	# e.g: /usr/local/bin/rfrm rfioServerFoo:$1
 #        echo $1,$2 >/opt/irods/debugrm.txt;
-	arcrm -t 30 "srm://srm.swegrid.se/snic/uppnex$1"
+	/usr/bin/arcrm -t 30 "srm://srm.swegrid.se/snic/uppnex$1"
 	return
 }
 
@@ -86,7 +87,7 @@ mv () {
 # function to do a stat on a file $1 stored in the MSS
 stat () {
 	# <your command to retrieve stats on the file> $1
-        output=`arcls -l srm://srm.swegrid.se/snic/uppnex$1`
+        output=`/usr/bin/arcls -l srm://srm.swegrid.se/snic/uppnex$1`
 #	echo $output
 	error=$?
 	if [ $error != 0 ] # if file does not exist or information not available
