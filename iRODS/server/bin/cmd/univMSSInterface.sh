@@ -81,7 +81,7 @@ rm () {
 	# <your command to remove a file from the MSS> $1
 	# e.g: /usr/local/bin/rfrm rfioServerFoo:$1
 #        echo $1,$2 >/opt/irods/debugrm.txt;
-	/usr/bin/arcrm -t 30 "srm://srm.swegrid.se/snic/uppnex$1"
+	/usr/local/bin/arcrm -t 30 "srm://srm.swegrid.se/snic/uppnex$1"
 	return
 }
 
