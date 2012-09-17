@@ -1,4 +1,4 @@
-upppnexReplAndTrim{
+uppnexReplAndTrim{
 #Get current time in unix
 msiGetIcatTime(*Time,"unix");
 #get human formatted date, year-month-day
