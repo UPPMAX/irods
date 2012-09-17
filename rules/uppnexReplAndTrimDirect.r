@@ -1,4 +1,4 @@
-upppnexReplAndTrim{
+uppnexReplAndTrim{
 writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    *ContInxOld = 1; 
    *Count = 0; 
