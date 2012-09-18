@@ -142,7 +142,7 @@ class SyncRunner(object):
     def filter_groups(self, groups):
         filtered_groups = []
         for group in groups:
-            if re.match("^(a|b|p|s)[0-9]{5}.*", group.groupname):
+            if re.match("^(a|b)[0-9]{5}.*", group.groupname):
                 filtered_groups.append(group)
         return filtered_groups
 
