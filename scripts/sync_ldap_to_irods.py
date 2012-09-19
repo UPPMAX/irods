@@ -104,7 +104,7 @@ class SyncRunner(object):
                 if not irods.folder_exists(irods_ampath):
                     print("Folder %s did not exist, so creating ..." % irods_projpath)
                     irods.create_folder(irods_ampath)
-                    irods.set_inherit_for_folder(irods_ampath)
+                    irods.set_inherit_on_folder(irods_ampath)
                 cmd = "arcls %s" % (ss_ampath)
                 output = exec_cmd(cmd)
                 files = output.strip().split("\n")
