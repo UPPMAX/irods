@@ -51,55 +51,49 @@ class SyncRunner(object):
         irods = IRodsConnector()
         
         # Create users
-#        for user in self.users:
-#            if not irods.user_exists(user.username):
-#                print("User %s missing, so creating now ...\n" % user.username)
-#                irods.create_user(user.username, usertype="rodsuser")
-                
+        for user in self.users:
+            if not irods.user_exists(user.username):
+                print("User %s missing, so creating now ...\n" % user.username)
+                irods.create_user(user.username, usertype="rodsuser")
+               
 
         # Create groups
-#        for groupname, group in groups.items():
-#            if not irods.group_exists(group.groupname):
-#                print("Creating group %s ..." % group.groupname)
-#                irods.create_group(group.groupname)
+        for groupname, group in groups.items():
+            if not irods.group_exists(group.groupname):
+                print("Creating group %s ..." % group.groupname)
+                irods.create_group(group.groupname)
 
         # Connect users and groups
-#        for groupname, group in groups.items():
-#            groupusers_in_irods = irods.list_group_users(group.groupname)
-#            for username in group.usernames:
-#                if username in groupusers_in_irods:
-#                    print("User %s already connected to group %s" % (username, group.groupname))
-#                    pass
-#                elif irods.user_exists(username):
-#                    print("Adding user %s to group %s ..." % (username,group.groupname))
-#                    irods.add_user_to_group(username, group.groupname)
+        for groupname, group in groups.items():
+            groupusers_in_irods = irods.list_group_users(group.groupname)
+            for username in group.usernames:
+                if username in groupusers_in_irods:
+                    print("User %s already connected to group %s" % (username, group.groupname))
+                    pass
+                elif irods.user_exists(username):
+                    print("Adding user %s to group %s ..." % (username,group.groupname))
+                    irods.add_user_to_group(username, group.groupname)
                     
         # Create project folders for groups
-#        projfolder = "/swestore-legacy/proj"
-#        if not irods.folder_exists(projfolder):
-#            irods.create_folder(projfolder)
-#            pass
-#        for group in groups:
-#            groupfolder = os.path.join(projfolder, group)
-#            if not irods.folder_exists(groupfolder):
-#                print("Creating folder %s ..." % groupfolder)
-                #irods.create_folder(groupfolder)
-                #irods.make_owner_of_folder(group, groupfolder)
-                #irods.set_inherit_on_folder(groupfolder)
-                #irods.remove_access_to_folder("public", groupfolder)
+        projfolder = "/swestore-legacy/proj"
+        if not irods.folder_exists(projfolder):
+            irods.create_folder(projfolder)
+            pass
+        for group in groups:
+            groupfolder = os.path.join(projfolder, group)
+            if not irods.folder_exists(groupfolder):
+                print("Creating folder %s ..." % groupfolder)
+                irods.create_folder(groupfolder)
+                irods.make_owner_of_folder(group, groupfolder)
+                irods.set_inherit_on_folder(groupfolder)
+                irods.remove_access_to_folder("public", groupfolder)
 
         # iReg files
-        # 
 
         ss_path = "srm://srm.swegrid.se/snic/uppnex/arch/proj"
         for proj in projects_on_swestore:
             ss_projpath = ss_path + "/" + proj
             irods_projpath = "/swestore-legacy/proj/" + proj
-
-            # Create project folder in iRODS
-            if not irods.folder_exists(irods_projpath):
-                print("Folder %s did not exist, so creating ..." % irods_projpath)
-                irods.create_folder(irods_projpath)
 
             cmd = "arcls %s" % (ss_projpath)
             output = exec_cmd(cmd)
@@ -110,6 +104,7 @@ class SyncRunner(object):
                 if not irods.folder_exists(irods_ampath):
                     print("Folder %s did not exist, so creating ..." % irods_projpath)
                     irods.create_folder(irods_ampath)
+                    irods.set_inherit_for_folder(irods_ampath)
                 cmd = "arcls %s" % (ss_ampath)
                 output = exec_cmd(cmd)
                 files = output.strip().split("\n")
@@ -118,7 +113,7 @@ class SyncRunner(object):
                     filepath = "/proj/%s/%s/%s" % (proj, am, f)
                     irods_filepath = "/swestore-legacy" + filepath
                     irods.ireg_file(filepath, irods_filepath, "swestoreLegacyArchResc", "swestoreLegacyArchGrp")
-                    print("Iregged file " + filepath + " ...")
+                    print("Iregged file " + irods_filepath + " ...")
 
 
     def parse_ldap_data_to_users(self, ldapdata):
