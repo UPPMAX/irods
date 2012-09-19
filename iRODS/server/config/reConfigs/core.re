@@ -84,7 +84,7 @@ acGetUserByDN(*arg,*OUT) { }
 # which was requested by ARCS (Sean Fleming).  See rsGenQuery.c for more
 # information on $userNameClient.  But the typical use is to just set it
 # strict or not for all users:
-acAclPolicy { }
+#acAclPolicy { }
 acAclPolicy {msiAclPolicy("STRICT"); }
 # When choosing a "STRICT" ACL policy you should consider setting the 
 # following permissions if you are using the PHP web browser:
