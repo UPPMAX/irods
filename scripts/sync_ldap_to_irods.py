@@ -35,7 +35,7 @@ class SyncRunner(object):
             if not irods.user_exists(user.username):
                 print("User %s missing, so creating now ..." % user.username)
                 irods.create_user(user.username, usertype="rodsuser")
-                user_homefolder = os.path.join("/home/rods/", user.username)
+                user_homefolder = os.path.join("/ssUppnexZone/trash/home/rods/", user.username)
                 if not irods.folder_exists(user_homefolder):
                     irods.create_folder(user_homefolder)
                     irods.make_owner_of_folder(user.username, user_homefolder)
