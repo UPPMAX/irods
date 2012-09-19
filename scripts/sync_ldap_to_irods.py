@@ -32,17 +32,16 @@ class SyncRunner(object):
         groups = self.get_groups()
         # print("Groups:\n%s" % groups)
         groups = self.filter_groups(groups)
-      
-	projects_on_swestore = self.get_projects_from_swestore()
-        
+        projects_on_swestore = self.get_projects_from_swestore()
         users = []
         usernames_all = []
 
-	for proj in projects_on_swestore:
+        for proj in projects_on_swestore:
             usernames = groups[proj].usernames
             usernames_all.extend(usernames)
 
-        usernames_all = list(set(usernames_all))
+        usernames_all = list(set(usernames_all)) # Sort the list
+
         for username in usernames_all:
             user = User()
             user.username = username
@@ -52,41 +51,75 @@ class SyncRunner(object):
         irods = IRodsConnector()
         
         # Create users
-        for user in self.users:
-            if not irods.user_exists(user.username):
-                print("User %s missing, so creating now ...\n" % user.username)
-                # irods.create_user(user.username, usertype="rodsuser")
+#        for user in self.users:
+#            if not irods.user_exists(user.username):
+#                print("User %s missing, so creating now ...\n" % user.username)
+#                irods.create_user(user.username, usertype="rodsuser")
                 
 
         # Create groups
-        for groupname, group in groups.items():
-            if not irods.group_exists(group.groupname):
-                print("Creating group %s ..." % group.groupname)
-                # irods.create_group(group.groupname)
+#        for groupname, group in groups.items():
+#            if not irods.group_exists(group.groupname):
+#                print("Creating group %s ..." % group.groupname)
+#                irods.create_group(group.groupname)
 
         # Connect users and groups
-        for groupname, group in groups.items():
-            groupusers_in_irods = irods.list_group_users(group.groupname)
-            for username in group.usernames:
-                if username in groupusers_in_irods:
-                    #print("User %s already connected to group %s" % (username, group.groupname))
-                    pass
-                elif irods.user_exists(username):
-                    print("Adding user %s to group %s ..." % (username,group.groupname))
-                    # irods.add_user_to_group(username, group.groupname)
+#        for groupname, group in groups.items():
+#            groupusers_in_irods = irods.list_group_users(group.groupname)
+#            for username in group.usernames:
+#                if username in groupusers_in_irods:
+#                    print("User %s already connected to group %s" % (username, group.groupname))
+#                    pass
+#                elif irods.user_exists(username):
+#                    print("Adding user %s to group %s ..." % (username,group.groupname))
+#                    irods.add_user_to_group(username, group.groupname)
                     
         # Create project folders for groups
-        projfolder = "/ssUppnexZone/proj"
-        if not irods.folder_exists(projfolder):
-            # irods.create_folder(projfolder)
-            pass
-        for group in groups:
-            groupfolder = os.path.join(projfolder, group.groupname)
-            if not irods.folder_exists(groupfolder):
-                print("Creating folder %s ..." % groupfolder)
-                # irods.create_folder(groupfolder)
-                # irods.make_owner_of_folder(group.groupname, groupfolder)
-                # irods.remove_access_to_folder("public", groupfolder)
+#        projfolder = "/swestore-legacy/proj"
+#        if not irods.folder_exists(projfolder):
+#            irods.create_folder(projfolder)
+#            pass
+#        for group in groups:
+#            groupfolder = os.path.join(projfolder, group)
+#            if not irods.folder_exists(groupfolder):
+#                print("Creating folder %s ..." % groupfolder)
+                #irods.create_folder(groupfolder)
+                #irods.make_owner_of_folder(group, groupfolder)
+                #irods.set_inherit_on_folder(groupfolder)
+                #irods.remove_access_to_folder("public", groupfolder)
+
+        # iReg files
+        # 
+
+        ss_path = "srm://srm.swegrid.se/snic/uppnex/arch/proj"
+        for proj in projects_on_swestore:
+            ss_projpath = ss_path + "/" + proj
+            irods_projpath = "/swestore-legacy/proj/" + proj
+
+            # Create project folder in iRODS
+            if not irods.folder_exists(irods_projpath):
+                print("Folder %s did not exist, so creating ..." % irods_projpath)
+                irods.create_folder(irods_projpath)
+
+            cmd = "arcls %s" % (ss_projpath)
+            output = exec_cmd(cmd)
+            arch_mssns = output.strip().split("\n")
+            for am in arch_mssns:
+                ss_ampath = ss_projpath + "/" + am
+                irods_ampath = irods_projpath + "/" + am
+                if not irods.folder_exists(irods_ampath):
+                    print("Folder %s did not exist, so creating ..." % irods_projpath)
+                    irods.create_folder(irods_ampath)
+                cmd = "arcls %s" % (ss_ampath)
+                output = exec_cmd(cmd)
+                files = output.strip().split("\n")
+                for f in files:
+                    # ireg -R swestoreArchResc -G swestoreArchGrp /proj/$p/$d/$f /swestore-legacy/proj/$p/$d/$f;
+                    filepath = "/proj/%s/%s/%s" % (proj, am, f)
+                    irods_filepath = "/swestore-legacy" + filepath
+                    irods.ireg_file(filepath, irods_filepath, "swestoreLegacyArchResc", "swestoreLegacyArchGrp")
+                    print("Iregged file " + filepath + " ...")
+
 
     def parse_ldap_data_to_users(self, ldapdata):
         '''
@@ -197,7 +230,7 @@ class Group(object):
 class IRodsConnector(object):
     def __init__(self):
         self.icommands_path = "/opt/irods/iRODS/clients/icommands/bin"
-        self.usernames = self.list_users_in_zone("ssUppnexZone")
+        self.usernames = self.list_users_in_zone("swestore-legacy")
         self.groupnames = self.list_groups()
 
     def user_exists(self, username):
@@ -226,7 +259,7 @@ class IRodsConnector(object):
         cmd = self.get_iadmin_p() + " lg " + group
         users = exec_cmd(cmd).strip().split("\n")
         for k,v in enumerate(users):
-            users[k] = v.replace("#ssUppnexZone", "")
+            users[k] = v.replace("#swestore-legacy", "")
         return users
         
     def group_exists(self, groupname):
@@ -282,6 +315,14 @@ class IRodsConnector(object):
         cmd = "%s null %s %s" % (self.get_ichmod_p(), userorgroup, folder)
         exec_cmd(cmd)
         
+    def set_inherit_on_folder(self, folder):
+        cmd = "%s inherit %s" % (self.get_ichmod_p(), folder)
+        exec_cmd(cmd)
+
+    def ireg_file(self, filepath, irods_filepath, resource, resource_group):
+        cmd = "%s -R %s -G %s %s %s" % (self.get_ireg_p(), resource, resource_group, filepath, irods_filepath)
+        exec_cmd(cmd)
+
     def get_iadmin_p(self):
         return os.path.join(self.icommands_path, "iadmin")
     
@@ -296,6 +337,9 @@ class IRodsConnector(object):
     
     def get_irm_p(self):
         return os.path.join(self.icommands_path, "irm")
+
+    def get_ireg_p(self):
+        return os.path.join(self.icommands_path, "ireg")
     
     
 # Tests
@@ -342,7 +386,7 @@ class TestSyncRunner(object):
     @classmethod    
     def delete_all_users(self):
         irods = IRodsConnector()
-        for user in irods.list_users_in_zone("ssUppnexZone"):
+        for user in irods.list_users_in_zone("#swestore-legacy"):
             if not "rods" in user:
                 #sys.stderr.write("Now deleting user " + user + "...\n")
                 irods.delete_user(user)
@@ -360,7 +404,7 @@ class TestSyncRunner(object):
                     
     @classmethod
     def delete_projfolder(self):
-        folder = "/ssUppnexZone/proj"
+        folder = "/swestore-legacy/proj"
         irods = IRodsConnector()
         if irods.folder_exists(folder):
             irods.delete_folder(folder, recursive=True)
