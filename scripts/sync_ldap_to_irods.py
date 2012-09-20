@@ -68,7 +68,7 @@ class SyncRunner(object):
             groupusers_in_irods = irods.list_group_users(group.groupname)
             for username in group.usernames:
                 if username in groupusers_in_irods:
-                    print("User %s already connected to group %s" % (username, group.groupname))
+                    #print("User %s already connected to group %s" % (username, group.groupname))
                     pass
                 elif irods.user_exists(username):
                     print("Adding user %s to group %s ..." % (username,group.groupname))
@@ -112,9 +112,12 @@ class SyncRunner(object):
                     # ireg -R swestoreArchResc -G swestoreArchGrp /proj/$p/$d/$f /swestore-legacy/proj/$p/$d/$f;
                     filepath = "/proj/%s/%s/%s" % (proj, am, f)
                     irods_filepath = "/swestore-legacy" + filepath
-                    irods.ireg_file(filepath, irods_filepath, "swestoreLegacyArchResc", "swestoreLegacyArchGrp")
-                    print("Iregged file " + irods_filepath + " ...")
-
+                    if not irods.file_exists(irods_filepath):
+                        irods.ireg_file(filepath, irods_filepath, "swestoreLegacyArchResc", "swestoreLegacyArchGrp")
+                        print("Iregged file " + irods_filepath + " ...")
+                    else:
+                        #print("File already exists, so not ireg:ing: %s" % irods_filepath)
+                        pass
 
     def parse_ldap_data_to_users(self, ldapdata):
         '''
@@ -186,7 +189,8 @@ class SyncRunner(object):
             if re.match("^(a|b|p|s)[0-9]{5}.*", groupname):
                 filtered_groups[groupname] = group
             else:
-                print("Group does not match pattern, so skipping: %s" % group.groupname)
+                #print("Group does not match pattern, so skipping: %s" % group.groupname)
+                pass
         return filtered_groups
 
     def get_match(self, pattern, group, userpart):
@@ -197,7 +201,7 @@ class SyncRunner(object):
 
     def get_projects_from_swestore(self):
         swestore_proj_data = exec_cmd("arcls srm://srm.swegrid.se/snic/uppnex/arch/proj")
-        projects = swestore_proj_data.strip().split("\n")
+        projects = swestore_proj_data.strip().strip("\n").split("\n")
         return projects
 
 class User(object):
@@ -282,6 +286,14 @@ class IRodsConnector(object):
             exec_cmd(cmd)
         else:
             print("Username %s or group %s is empty!" % (username, groupname))
+
+    def file_exists(self, file):
+        cmd = self.get_ils_p() + " " + file
+        stdout,stderr = exec_cmd(cmd, get_stderr=True)
+        if "ERROR" in stderr:
+            return False
+        else:
+            return True
         
     def folder_exists(self, folder):
         cmd = self.get_ils_p() + " " + folder
