@@ -10,11 +10,15 @@
 # These functions need one or two input parameters which should be named $1 and $2.
 # If some of these functions are not implemented for your MSS, just let this function as it is.
 #
- 
+
 # function for the synchronization of file $1 on local disk resource to file $2 in the MSS
 syncToArch () {
 	date >> /tmp/univmss
 	echo "syncToArch $1 $2" /usr/local/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2" >> /tmp/univmss
+
+
+	
+
 
 	# <your command or script to copy from cache to MSS> $1 $2 
 	# e.g: /usr/local/bin/rfcp $1 rfioServerFoo:$2
@@ -25,9 +29,55 @@ syncToArch () {
 	# Hack to translate system path to irods filespace path	
 	iPATH=`echo "$1" | sed 's/'$VAULT'/\/ssUppnexZone/'`       
         md5=`isysmeta ls -l "$iPATH" |grep data_checksum |awk '{print $3}' |head -1`
+
+
+	if /usr/local/bin/arcls -m -n "srm://srm.swegrid.se/snic/uppnex/$2" 2>/dev/null >/dev/null; then
+	    # File exists already?
+
+	adler=`python -c 'import zlib;import sys
+s=1
+while True:
+ r=sys.stdin.read(65536) 
+ s=zlib.adler32(r,s)
+ if len(r) != 65536:    
+   print "%x" % s 
+   raise SystemExit' < "$iPATH"`
+
+	size=`stat -c%s "$iPATH"`
+
+        # arcls leftpads with 0s to get even numbers (bytes)
+	if (( ${#adler} % 2 )); then
+	    adler=0$adler
+	fi
+	
+	tmpfile=/tmp/univmss_verify.$$
+
+	
+	/usr/local/bin/arcls -m -n "srm://srm.swegrid.se/snic/uppnex/$2" 2>/dev/null >$tmpfile
+	
+	if grep -q "^size:$size\$" "$tmpfile" ; then
+	    :
+	else
+	    rm -f "$tmpfile"
+	    return 1
+	fi
+	
+	if grep -q "^checksum:adler32:$adler\$" "$tmpfile" ; then
+	    :
+	else
+	    rm -f "$tmpfile"
+	    return 1
+	fi
+	
+	rm -f "$tmpfile"
+	return 0
+	
+	fi
+
+
         if [ -n "$md5" ]
         then
-	  /usr/local/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
+	  /usr/local/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex/$2:checksumtype=md5:checksumvalue=$md5"
 	else
 	  # md5sum do not exist in iCAT calculate with ichksum
 	  # Iadmin cant chksum other users file
@@ -35,7 +85,7 @@ syncToArch () {
 	  md5=`ichksum -K "$iPATH" | awk '{print $2}'|head -1`
 	  #forced to calculate md5sum on file..
 	  #md5=`md5sum "$1"|awk '{print $1}'` 
-  	  /usr/local/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex$2:checksumtype=md5:checksumvalue=$md5"
+  	  /usr/local/bin/arccp -R 5 "$1" "srm://srm.swegrid.se/snic/uppnex/$2:checksumtype=md5:checksumvalue=$md5"
 	fi      
         return
 }
