@@ -41,9 +41,9 @@ while True:
  s=zlib.adler32(r,s) & 0xffffffff
  if len(r) != 65536:    
    print "%x" % s 
-   raise SystemExit' < "$iPATH"`
+   raise SystemExit' < "$1"`
 
-	size=`stat -c%s "$iPATH"`
+	size=`/usr/bin/stat -c%s "$1"`
 
         # arcls leftpads with 0s to get even numbers (bytes)
 	if (( ${#adler} % 2 )); then
@@ -69,7 +69,7 @@ while True:
 	    return 1
 	fi
 	
-	rm -f "$tmpfile"
+	/bin/rm -f "$tmpfile"
 	return 0
 	
 	fi
