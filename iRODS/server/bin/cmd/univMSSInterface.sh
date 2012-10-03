@@ -38,7 +38,7 @@ syncToArch () {
 s=1
 while True:
  r=sys.stdin.read(65536) 
- s=zlib.adler32(r,s)
+ s=zlib.adler32(r,s) & 0xffffffff
  if len(r) != 65536:    
    print "%x" % s 
    raise SystemExit' < "$iPATH"`
