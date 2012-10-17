@@ -34,15 +34,7 @@ syncToArch () {
 	if /usr/local/bin/arcls -m -n "srm://srm.swegrid.se/snic/uppnex/$2" 2>/dev/null >/dev/null; then
 	    # File exists already?
 
-	adler=`python -c 'import zlib;import sys
-s=1
-while True:
- r=sys.stdin.read(65536) 
- s=zlib.adler32(r,s) & 0xffffffff
- if len(r) != 65536:    
-   print "%x" % s 
-   raise SystemExit' < "$1"`
-
+	adler=`adler32 "$1"`
 	size=`/usr/bin/stat -c%s "$1"`
 
         # arcls leftpads with 0s to get even numbers (bytes)
