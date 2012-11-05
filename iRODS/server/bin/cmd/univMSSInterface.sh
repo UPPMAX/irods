@@ -28,7 +28,11 @@ syncToArch () {
         VAULT="\/data\/rescs\/swestoreArchCacheResc"
 	# Hack to translate system path to irods filespace path	
 	iPATH=`echo "$1" | sed 's/'$VAULT'/\/ssUppnexZone/'`       
-        md5=`isysmeta ls -l "$iPATH" |grep data_checksum |awk '{print $3}' |head -1`
+
+
+
+	replno=`ils -l "$iPATH" | sed -ne 's/.*\s*\([0-9][0-9]*\)\s*swestoreArchCacheRes.*/\1/p'`
+	md5=`isysmeta ls -l "$iPATH" |grep data_checksum |awk '{print $3}' |tail -n +"$replno" | head -1`
 
 
 	if /usr/local/bin/arcls -m -n "srm://srm.swegrid.se/snic/uppnex/$2" 2>/dev/null >/dev/null; then
@@ -50,14 +54,14 @@ syncToArch () {
 	if grep -q "^size:$size\$" "$tmpfile" ; then
 	    :
 	else
-	    rm -f "$tmpfile"
+	    /bin/rm -f "$tmpfile"
 	    return 1
 	fi
 	
 	if grep -q "^checksum:adler32:$adler\$" "$tmpfile" ; then
 	    :
 	else
-	    rm -f "$tmpfile"
+	    /bin/rm -f "$tmpfile"
 	    return 1
 	fi
 	
