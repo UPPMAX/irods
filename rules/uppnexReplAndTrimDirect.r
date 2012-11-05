@@ -6,7 +6,7 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
    msiGetIcatTime(*Time,"unix"); 
    *Tim = int(*Time); 
    #Generate SQL query, This will get every file on the Cache resource. 256 lines at a time. 
-   msiMakeGenQuery("DATA_NAME,COLL_NAME,DATA_CREATE_TIME,RESC_NAME","RESC_NAME like '*Cache'",*GenQInp);
+   msiMakeGenQuery("DATA_NAME,COLL_NAME,DATA_CREATE_TIME,RESC_NAME,DATA_SIZE","RESC_NAME like '*Cache'",*GenQInp);
    #Excute query.
    msiExecGenQuery(*GenQInp,*GenQOut);
    #Get Continuation index, index is non-zero when additional rows are available 
@@ -19,7 +19,9 @@ writeLine("serverLog","Running UPPNEX Rule uppnexReplAndTrim");
                 *Dtim = int(*DeleteOlderThan);
 		msiGetValByKey(*GenQOut,"DATA_NAME",*File);
 		msiGetValByKey(*GenQOut,"COLL_NAME",*Col);
-		if (*Tim - *Ctim > *Dtim) { 
+                msiGetValByKey(*GenQOut,"DATA_SIZE",*Size);
+
+		if ((int(*Size) > 0) && (*Tim - *Ctim > *Dtim)) { 
 		        *Path="*Col" ++ "/*File";
 			writeLine("serverLog","uppnexReplAndTrim: *Path is too old will be replicated and removed from cache");
 			#Replicate a file, and replicate as admin, the admin user can replicate other user files
